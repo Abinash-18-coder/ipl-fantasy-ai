@@ -1,26 +1,132 @@
+/* File: app/globals.css */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Core Stadium Dark Palette */
+  --color-stadium-navy: #0a0f1d;
+  --color-stadium-surface: #111827;
+  --color-stadium-card: #1e293b;
+  --color-stadium-border: #334155;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Pitch Turf & Accents */
+  --color-pitch-turf: #10b981;
+  --color-pitch-dark: #059669;
+  --color-accent-gold: #f59e0b;
+  --color-accent-amber: #d97706;
+  --color-accent-crimson: #ef4444;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* All 10 IPL Franchise Brand Tokens */
+  --color-franchise-csk: #fdb913;
+  --color-franchise-mi: #004ba0;
+  --color-franchise-rcb: #ec1c24;
+  --color-franchise-kkr: #3a225d;
+  --color-franchise-rr: #ea1a85;
+  --color-franchise-gt: #1b2133;
+  --color-franchise-lsg: #0057e2;
+  --color-franchise-dc: #00008b;
+  --color-franchise-pbks: #dd1f2d;
+  --color-franchise-srh: #ff822a;
+
+  /* Elevation & Neon Glow Shadows */
+  --shadow-turf-glow: 0 0 22px -2px rgba(16, 185, 129, 0.38);
+  --shadow-gold-glow: 0 0 22px -2px rgba(245, 158, 11, 0.38);
+  --shadow-glass-panel: 0 10px 36px -4px rgba(0, 0, 0, 0.55);
+  --shadow-dock: 0 16px 40px -6px rgba(0, 0, 0, 0.75);
+
+  /* Spring Easing Curves */
+  --ease-spring-snappy: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Keyframe Animations */
+  --animate-shimmer: shimmer 2.2s infinite linear;
+  --animate-pulse-live: pulseLive 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  @keyframes pulseLive {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(1.1);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  :root {
+    --ambient-primary: rgba(16, 185, 129, 0.14);
+    --ambient-secondary: rgba(245, 158, 11, 0.1);
+  }
+
+  * {
+    border-color: rgba(51, 65, 85, 0.6);
+  }
+
+  body {
+    background-color: var(--color-stadium-navy);
+    background-image: radial-gradient(
+      circle at 50% 0%,
+      var(--ambient-primary) 0%,
+      rgba(10, 15, 29, 0.98) 70%
+    );
+    color: #f8fafc;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+}
+
+/* Custom Utility Classes for Scorecards, Glassmorphism & Shimmer */
+.tabular-score {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+.glass-card {
+  background: rgba(17, 24, 39, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-navbar {
+  background: rgba(10, 15, 29, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-dock {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.bg-turf-gradient {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0.45) 25%,
+    rgba(51, 65, 85, 0.8) 50%,
+    rgba(30, 41, 59, 0.45) 75%
+  );
+  background-size: 200% 100%;
 }
