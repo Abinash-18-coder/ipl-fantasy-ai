@@ -1,0 +1,35 @@
+# File: .github/workflows/ci.yml
+name: IPL Fantasy AI - CI Pipeline
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  quality-and-build:
+    name: ESLint, TypeScript & Turbopack Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Node.js v24 Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: 3. Install Dependencies Cleanly
+        run: npm ci
+
+      - name: 4. Run TypeScript Compiler Check (tsc)
+        run: npm run typecheck
+
+      - name: 5. Run ESLint Code Quality Check
+        run: npm run lint
+
+      - name: 6. Verify Production Next.js 16.3.8 Build
+        run: npm run build
