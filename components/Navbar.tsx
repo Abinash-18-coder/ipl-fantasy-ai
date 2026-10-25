@@ -1,4 +1,3 @@
-// File: components/Navbar.tsx
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -6,52 +5,47 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  Trophy,
   Activity,
   Sparkles,
   BarChart3,
   Settings,
-  LogIn,
   Search,
   Command,
-  ArrowRight,
+  ArrowUpRight,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SPRING_SNAPPY, SPRING_GENTLE } from "@/lib/motion";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import type { NavItem } from "@/types";
 
 export const NAV_ITEMS: NavItem[] = [
   {
     label: "Live Scores",
     href: "/scores",
-    shortcut: "G S",
-    description: "Public Cricbuzz & CREX style live scorecards & ball tracker",
+    shortcut: "01",
+    description: "Ball-by-ball scorecards, run-rate telemetry & match center",
     requiresAuth: false,
-    badgeText: "PUBLIC",
   },
   {
     label: "Fantasy Arena",
     href: "/fantasy",
-    shortcut: "G F",
-    description: "20 allocated AI lineups (T-24h provisional + T-30m toss swap)",
+    shortcut: "02",
+    description: "20 curated AI lineups — T-24h research & T-30m toss swap",
     requiresAuth: true,
-    badgeText: "30 AI TEAMS",
   },
   {
-    label: "Match Analytics",
+    label: "Pitch & Matchups",
     href: "/analytics",
-    shortcut: "G A",
-    description: "Pitch aerodynamics, Open-Meteo dew index & H2H matrix",
+    shortcut: "03",
+    description: "Venue aerodynamics, evening dew index & H2H micro-battles",
     requiresAuth: false,
   },
   {
-    label: "User Settings",
+    label: "The Pavilion",
     href: "/settings",
-    shortcut: "G U",
-    description: "Google OAuth login & favorite IPL franchise ambient theme",
+    shortcut: "04",
+    description: "Member authentication & franchise ambient lighting",
     requiresAuth: true,
   },
 ];
@@ -62,7 +56,6 @@ export function Navbar() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Listen globally for Ctrl+K (Windows/Linux) or Cmd+K (Mac) and Escape
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
@@ -77,7 +70,6 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Filter command palette items based on what the user types
   const filteredItems = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     if (!query) return NAV_ITEMS;
@@ -91,49 +83,30 @@ export function Navbar() {
   const renderNavIcon = (href: string) => {
     switch (href) {
       case "/scores":
-        return <Activity className="h-4 w-4" />;
+        return <Activity className="h-4 w-4 text-accent-gold" />;
       case "/fantasy":
         return <Sparkles className="h-4 w-4 text-accent-gold" />;
       case "/analytics":
-        return <BarChart3 className="h-4 w-4" />;
-      case "/settings":
-        return <Settings className="h-4 w-4" />;
+        return <BarChart3 className="h-4 w-4 text-accent-gold" />;
       default:
-        return <Trophy className="h-4 w-4" />;
+        return <Settings className="h-4 w-4 text-accent-gold" />;
     }
   };
 
   return (
     <>
       <header className="sticky top-0 z-40 w-full glass-navbar">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Left: Brand Identity */}
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 sm:px-10 lg:px-12">
           <Link
             href="/"
-            className="flex items-center gap-3 group focus:outline-none"
+            className="font-display text-lg sm:text-xl tracking-[0.28em] uppercase text-ivory hover:text-accent-gold transition-colors focus:outline-none"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-turf-gradient shadow-turf-glow transition-transform duration-200 group-hover:scale-105">
-              <Trophy className="h-5 w-5 text-slate-950 stroke-[2.5]" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-extrabold tracking-tight text-white">
-                  CRIC<span className="text-pitch-turf">INTEL</span>
-                </span>
-                <Badge variant="provisional" className="text-[10px] px-1.5 py-0">
-                  v16.3.8
-                </Badge>
-              </div>
-              <span className="text-[11px] font-medium text-slate-400">
-                Gemini 3.8 Flash &bull; HiGHS Solver
-              </span>
-            </div>
+            CRICINTEL
           </Link>
 
-          {/* Center: Desktop Navigation Tabs with Motion layoutId Sliding Pill */}
           <nav
             aria-label="Main Navigation"
-            className="hidden md:flex items-center gap-1 rounded-xl bg-slate-900/70 p-1 border border-slate-800/80"
+            className="hidden md:flex items-center gap-9"
           >
             {NAV_ITEMS.map((item) => {
               const isActive =
@@ -144,111 +117,90 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "relative flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors z-10",
+                    "relative py-2 text-[13px] tracking-[0.06em] transition-colors duration-300",
                     isActive
-                      ? "text-pitch-turf"
-                      : "text-slate-300 hover:text-white"
+                      ? "text-ivory font-medium"
+                      : "text-ivory-muted hover:text-ivory"
                   )}
                 >
+                  <span>{item.label}</span>
                   {isActive && (
                     <motion.span
                       layoutId="desktop-navbar-sliding-pill"
                       transition={SPRING_SNAPPY}
-                      className="absolute inset-0 -z-10 rounded-lg bg-pitch-turf/15 border border-pitch-turf/35 shadow-turf-glow"
+                      className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-accent-gold"
                     />
-                  )}
-                  {renderNavIcon(item.href)}
-                  <span>{item.label}</span>
-                  {item.badgeText && (
-                    <span
-                      className={cn(
-                        "ml-0.5 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tabular-score",
-                        item.href === "/fantasy"
-                          ? "bg-accent-gold/20 text-accent-gold border border-accent-gold/30"
-                          : "bg-slate-800 text-slate-400"
-                      )}
-                    >
-                      {item.badgeText}
-                    </span>
                   )}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Right: Cmd+K / Ctrl+K Trigger & Sign In Button */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
               aria-label="Open Command Palette"
-              className="flex items-center gap-2.5 rounded-lg border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-slate-700 hover:text-white transition-colors cursor-pointer"
+              className="flex items-center gap-2 rounded-full border border-ivory/15 bg-ivory/3 px-3.5 py-1.5 text-xs text-ivory-muted hover:border-ivory/30 hover:text-ivory transition-colors cursor-pointer"
             >
-              <Search className="h-3.5 w-3.5 text-pitch-turf" />
-              <span className="hidden sm:inline">Quick Jump...</span>
-              <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-400 border border-slate-700">
+              <Search className="h-3.5 w-3.5 text-accent-gold" />
+              <kbd className="hidden sm:inline-flex items-center gap-0.5 font-mono text-[10px] tracking-wider text-ivory-muted">
                 <Command className="h-2.5 w-2.5" />K
               </kbd>
             </button>
 
-            <Button asChild variant="default" size="sm">
-              <Link href="/settings">
-                <LogIn className="h-4 w-4" />
-                <span className="hidden sm:inline">Sign In</span>
-              </Link>
+            <Button asChild variant="ivory" size="sm" className="px-5">
+              <Link href="/settings">Sign In</Link>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Cmd+K / Ctrl+K Spotlight Command Palette Modal */}
       <AnimatePresence>
         {paletteOpen && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
-            {/* Backdrop Blur Overlay */}
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setPaletteOpen(false)}
-              className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/80 backdrop-blur-md"
             />
 
-            {/* Modal Dialog Box */}
             <motion.div
               role="dialog"
               aria-modal="true"
               aria-label="Command Palette"
-              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              initial={{ opacity: 0, scale: 0.97, y: -8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              exit={{ opacity: 0, scale: 0.97, y: -8 }}
               transition={SPRING_GENTLE}
-              className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl glass-dock shadow-dock border border-slate-700/80"
+              className="relative z-10 w-full max-w-lg overflow-hidden rounded-xl glass-dock shadow-dock border border-ivory/15"
             >
-              <div className="flex items-center border-b border-slate-800 px-4 py-3">
-                <Search className="h-4 w-4 text-pitch-turf mr-3 shrink-0" />
+              <div className="flex items-center border-b border-ivory/10 px-5 py-4">
+                <Search className="h-4 w-4 text-accent-gold mr-3 shrink-0" />
                 <input
                   type="text"
                   autoFocus
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Type a module name (Scores, Fantasy, Analytics, Settings)..."
-                  className="w-full bg-transparent text-sm text-white placeholder-slate-400 focus:outline-none"
+                  placeholder="Jump to a chapter (Scores, Fantasy Arena, Pitch, Pavilion)..."
+                  className="w-full bg-transparent text-sm text-ivory placeholder-ivory-dim focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setPaletteOpen(false)}
                   aria-label="Close Command Palette"
-                  className="ml-2 rounded-md p-1 text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer"
+                  className="ml-2 rounded-md p-1 text-ivory-muted hover:text-ivory cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
 
-              <div className="max-h-80 overflow-y-auto p-2 space-y-1">
+              <div className="max-h-80 overflow-y-auto p-2.5 space-y-1">
                 {filteredItems.length === 0 ? (
-                  <p className="py-6 text-center text-xs text-slate-400">
-                    No matching stadium modules found.
+                  <p className="py-8 text-center text-xs text-ivory-dim">
+                    No matching chapters found.
                   </p>
                 ) : (
                   filteredItems.map((item) => (
@@ -260,38 +212,35 @@ export function Navbar() {
                         setSearchQuery("");
                         router.push(item.href);
                       }}
-                      className="flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left hover:bg-slate-800/80 transition-colors group cursor-pointer"
+                      className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-left hover:bg-ivory/6 transition-colors group cursor-pointer"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 border border-slate-800 group-hover:border-pitch-turf/40">
+                      <div className="flex items-center gap-4">
+                        <span className="font-mono text-xs text-accent-gold/80 tabular-score">
+                          {item.shortcut}
+                        </span>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ivory/4 border border-ivory/10">
                           {renderNavIcon(item.href)}
                         </div>
                         <div>
-                          <div className="text-sm font-bold text-white flex items-center gap-2">
-                            <span>{item.label}</span>
-                            {item.badgeText && (
-                              <Badge
-                                variant="outline"
-                                className="text-[9px] py-0"
-                              >
-                                {item.badgeText}
-                              </Badge>
-                            )}
+                          <div className="font-display text-lg text-ivory group-hover:text-accent-gold transition-colors">
+                            {item.label}
                           </div>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-ivory-muted">
                             {item.description}
                           </p>
                         </div>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-pitch-turf transition-colors" />
+                      <ArrowUpRight className="h-4 w-4 text-ivory-dim group-hover:text-accent-gold transition-colors" />
                     </button>
                   ))
                 )}
               </div>
 
-              <div className="flex items-center justify-between border-t border-slate-800/80 bg-slate-950/60 px-4 py-2 text-[11px] text-slate-400">
-                <span>Press ESC to close</span>
-                <span className="tabular-score">Mumbai (bom1) Edge Active</span>
+              <div className="flex items-center justify-between border-t border-ivory/10 bg-black/40 px-5 py-2.5 text-[11px] text-ivory-dim">
+                <span className="uppercase tracking-[0.18em]">ESC to close</span>
+                <span className="tabular-score uppercase tracking-[0.18em]">
+                  Mumbai Edge &bull; Gemini 3.8 High
+                </span>
               </div>
             </motion.div>
           </div>

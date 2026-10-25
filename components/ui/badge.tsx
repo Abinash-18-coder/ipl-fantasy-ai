@@ -1,23 +1,22 @@
-// File: components/ui/badge.tsx
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider transition-colors tabular-score",
+  "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] transition-colors tabular-score",
   {
     variants: {
       variant: {
         default:
-          "bg-pitch-turf/15 text-pitch-turf border border-pitch-turf/30",
+          "bg-[#c8b273]/12 text-[#d8c48b] border border-[#c8b273]/30",
         provisional:
-          "bg-accent-gold/15 text-accent-gold border border-accent-gold/40",
+          "bg-[#c8b273]/10 text-[#c8b273] border border-[#c8b273]/25",
         confirmed:
-          "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-turf-glow",
+          "bg-[#5b8c75]/15 text-[#8ec2a8] border border-[#5b8c75]/35",
         live:
-          "bg-red-500/20 text-red-400 border border-red-500/40",
+          "bg-[#c95b5b]/15 text-[#eb8f8f] border border-[#c95b5b]/35",
         outline:
-          "text-slate-300 border border-slate-700 bg-slate-900/50",
+          "text-ivory-muted border border-ivory/15 bg-ivory/[0.03]",
       },
     },
     defaultVariants: {

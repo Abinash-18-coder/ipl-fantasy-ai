@@ -1,33 +1,34 @@
-// File: components/ui/button.tsx
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch-turf disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] cursor-pointer",
+  "inline-flex items-center justify-center gap-3 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent-gold disabled:pointer-events-none disabled:opacity-50 active:scale-[0.99] cursor-pointer",
   {
     variants: {
       variant: {
         default:
-          "bg-turf-gradient text-slate-950 shadow-turf-glow hover:brightness-110 font-bold",
+          "rounded-sm bg-[#c8b273] text-[#090b0c] hover:bg-[#d6c285] shadow-turf-glow font-bold",
         gold:
-          "bg-gold-gradient text-slate-950 shadow-gold-glow hover:brightness-110 font-bold",
+          "rounded-sm bg-gold-gradient text-[#090b0c] hover:brightness-105 shadow-gold-glow font-bold",
+        ivory:
+          "rounded-full bg-[#f4f1ea] text-[#090b0c] hover:bg-white font-semibold tracking-[0.08em] normal-case text-xs shadow-sm",
         destructive:
-          "bg-accent-crimson text-white hover:bg-red-600 shadow-sm",
+          "rounded-sm bg-accent-crimson text-white hover:bg-red-700",
         outline:
-          "border border-slate-700 bg-slate-900/60 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-600",
+          "rounded-sm border border-[#f4f1ea]/25 bg-[#f4f1ea]/[0.04] text-[#f4f1ea] hover:bg-[#f4f1ea]/[0.1] hover:border-[#f4f1ea]/45 backdrop-blur-md",
         secondary:
-          "bg-stadium-card text-slate-100 hover:bg-slate-700 border border-slate-700/80",
+          "rounded-sm bg-stadium-card text-ivory hover:bg-mist-slate border border-ivory/10",
         ghost:
-          "text-slate-300 hover:bg-slate-800/70 hover:text-white",
+          "rounded-sm text-ivory-muted hover:text-ivory hover:bg-ivory/5",
         link:
-          "text-pitch-turf underline-offset-4 hover:underline",
+          "text-accent-gold underline-offset-8 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-12 rounded-xl px-6 text-base",
+        default: "h-11 px-6 py-2.5",
+        sm: "h-9 px-4 text-[11px]",
+        lg: "h-13 px-8 text-xs",
         icon: "h-10 w-10",
       },
     },
