@@ -1,10 +1,5 @@
-// File: lib/env.ts
 import { z } from "zod";
 
-/**
- * Helper that converts empty strings ("") to undefined so Zod's .default()
- * kicks in cleanly during local development and GitHub Actions CI builds.
- */
 const emptyToUndefined = (val: string | undefined): string | undefined => {
   if (typeof val === "string" && val.trim() === "") {
     return undefined;
@@ -12,10 +7,6 @@ const emptyToUndefined = (val: string | undefined): string | undefined => {
   return val;
 };
 
-/**
- * 1. Public Client Environment Schema
- * Safe to import in both Client Components ("use client") and Server Components.
- */
 const clientEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z
     .string()
@@ -31,11 +22,6 @@ const clientEnvSchema = z.object({
     .default("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder-anon-key"),
 });
 
-/**
- * 2. Server-Only Environment Schema
- * Extends clientEnvSchema with secret backend keys. Strictly for Server Components,
- * Route Handlers, and Server Actions.
- */
 const serverEnvSchema = clientEnvSchema.extend({
   SUPABASE_SERVICE_ROLE_KEY: z
     .string()
@@ -67,15 +53,16 @@ const serverEnvSchema = clientEnvSchema.extend({
     .default("gemini-3.8-flash"),
   GEMINI_DEFAULT_THINKING_LEVEL: z
     .enum(["low", "medium", "high"])
-    .default("low"),
+    .default("high"),
+  GEMINI_DEEP_RESEARCH_ENABLED: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((val) => val === "true"),
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
 
-/**
- * Validated Public Client Environment Object
- */
 export const clientEnv: ClientEnv = clientEnvSchema.parse({
   NEXT_PUBLIC_APP_URL: emptyToUndefined(process.env.NEXT_PUBLIC_APP_URL),
   NEXT_PUBLIC_SUPABASE_URL: emptyToUndefined(
@@ -86,10 +73,6 @@ export const clientEnv: ClientEnv = clientEnvSchema.parse({
   ),
 });
 
-/**
- * Validates and returns all Server + Client environment variables.
- * Throws an immediate security error if called inside a browser Client Component.
- */
 export function getServerEnv(): ServerEnv {
   if (typeof window !== "undefined") {
     throw new Error(
@@ -121,13 +104,16 @@ export function getServerEnv(): ServerEnv {
     GEMINI_DEFAULT_THINKING_LEVEL: emptyToUndefined(
       process.env.GEMINI_DEFAULT_THINKING_LEVEL
     ),
+    GEMINI_DEEP_RESEARCH_ENABLED: emptyToUndefined(
+      process.env.GEMINI_DEEP_RESEARCH_ENABLED
+    ),
   });
 
   if (!parsed.success) {
     const formattedIssues = parsed.error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
       .join(" | ");
-    console.error(`❌ Invalid Environment Configuration: ${formattedIssues}`);
+    console.error(`Invalid Environment Configuration: ${formattedIssues}`);
     throw new Error(`Invalid server environment configuration: ${formattedIssues}`);
   }
 
