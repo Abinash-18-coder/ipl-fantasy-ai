@@ -5,6 +5,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { MobileNav } from "@/components/MobileNav";
+import { getServerEnv } from "@/lib/env";
+
+// Enforce Zod environment validation at server boot time (Day 5)
+const env = getServerEnv();
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,6 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   title: {
     default: "CricIntel AI | IPL 30-Team Fantasy Generator & Live Scorecards",
     template: "%s | CricIntel AI",
