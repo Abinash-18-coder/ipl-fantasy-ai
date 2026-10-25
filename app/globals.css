@@ -63,6 +63,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     border-color: rgba(244, 241, 234, 0.09);
   }
@@ -95,26 +99,37 @@
 .glass-card {
   background: linear-gradient(
     180deg,
-    rgba(21, 28, 31, 0.72) 0%,
-    rgba(12, 16, 18, 0.86) 100%
+    rgba(21, 28, 31, 0.76) 0%,
+    rgba(11, 15, 17, 0.9) 100%
   );
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
   border: 1px solid rgba(244, 241, 234, 0.09);
 }
 
 .glass-navbar {
-  background: rgba(14, 19, 21, 0.78);
+  background: rgba(11, 15, 17, 0.82);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid rgba(244, 241, 234, 0.07);
 }
 
 .glass-dock {
-  background: rgba(14, 19, 21, 0.9);
+  background: rgba(14, 19, 21, 0.92);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(244, 241, 234, 0.12);
+}
+
+.gold-hairline {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(200, 178, 115, 0.35) 50%,
+    transparent 100%
+  );
+  height: 1px;
+  width: 100%;
 }
 
 .bg-turf-gradient {
@@ -128,8 +143,8 @@
 .cliffs-mist-bg {
   background: linear-gradient(
     180deg,
-    #263438 0%,
-    #182225 45%,
+    #223034 0%,
+    #141d20 48%,
     #090b0c 100%
   );
 }

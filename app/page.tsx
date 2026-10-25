@@ -3,6 +3,10 @@ import Link from "next/link";
 import { ArrowUpRight, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MorphTransition } from "@/components/ui/view-transition";
+import {
+  HeroFixtureConsole,
+  InteractiveArenaAtlas,
+} from "@/components/home/InteractivePavilion";
 
 const EDITORIAL_CHAPTERS = [
   {
@@ -15,6 +19,8 @@ const EDITORIAL_CHAPTERS = [
     description:
       "Calm, high-precision batting and bowling sheets with rolling tabular digits, real-time win probability, and over-by-over seam tracking.",
     metric: "Sub-200ms Broadcast",
+    telemetryStrip: ["0", "1", "4", "W", "2", "6"],
+    telemetryLabel: "LIVE OVER STREAM",
   },
   {
     number: "02 / 04",
@@ -26,6 +32,8 @@ const EDITORIAL_CHAPTERS = [
     description:
       "Thirty mathematically optimal squads synthesized 24 hours before toss, with zero-hallucination Playing XI substitutions 30 minutes prior to first ball.",
     metric: "4 Core + 16 Differential",
+    telemetryStrip: ["5 Core", "15 Form", "5 Hist", "5 Punt"],
+    telemetryLabel: "30-LINEUP QUOTAS",
   },
   {
     number: "03 / 04",
@@ -37,6 +45,8 @@ const EDITORIAL_CHAPTERS = [
     description:
       "Afternoon baking spin surfaces versus evening dew slides across all ten IPL venues, paired with batter-versus-bowler phase matchups.",
     metric: "10 Stadium Profiles",
+    telemetryStrip: ["15:30 Spin", "19:30 Dew", "H2H Matrix"],
+    telemetryLabel: "ENVIRONMENTAL ENGINE",
   },
   {
     number: "04 / 04",
@@ -48,33 +58,35 @@ const EDITORIAL_CHAPTERS = [
     description:
       "Seamless Google and passwordless entry, personal portfolio allocation locks, and bespoke franchise ambient stadium lighting.",
     metric: "Private Portfolio",
+    telemetryStrip: ["bom1 Edge", "ap-south-1", "RLS Locked"],
+    telemetryLabel: "INFRASTRUCTURE",
   },
 ];
 
 export default function HomePage() {
   return (
     <div className="flex flex-col">
-      <section className="relative min-h-[calc(100vh-5rem)] w-full overflow-hidden flex flex-col justify-between px-6 sm:px-10 lg:px-16 pt-12 pb-8">
+      <section className="relative min-h-[calc(100vh-5rem)] w-full overflow-hidden flex flex-col justify-between px-6 sm:px-10 lg:px-16 pt-10 pb-8">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-35 scale-105 transition-transform duration-1000"
+            className="absolute inset-0 bg-cover bg-center opacity-35 scale-105"
             style={{
               backgroundImage:
                 "url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=2000&q=85')",
             }}
           />
-          <div className="absolute inset-0 bg-linear-to-r from-stadium-navy via-stadium-navy/88 to-transparent" />
-          <div className="absolute inset-0 bg-linear-to-t from-stadium-navy via-transparent to-stadium-navy/60" />
-          <div className="absolute right-[8%] top-[12%] h-105 w-105 rounded-full bg-[#c8b273]/10 blur-[130px]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#090b0c] via-[#090b0c]/88 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#090b0c] via-transparent to-[#090b0c]/60" />
         </div>
 
-        <div className="mx-auto w-full max-w-7xl my-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center py-8">
+        <div className="mx-auto w-full max-w-7xl my-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center py-6">
           <div className="lg:col-span-7 space-y-7">
-            <p className="eyebrow-label">
-              A LITTLE DATA. A LITTLE MAGIC.
-            </p>
+            <div className="inline-flex items-center gap-2.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent-gold animate-pulse-live" />
+              <p className="eyebrow-label">A LITTLE DATA. A LITTLE MAGIC.</p>
+            </div>
 
-            <h1 className="font-display text-5xl sm:text-7xl lg:text-[5.25rem] font-normal tracking-[-0.01em] text-ivory leading-[1.03]">
+            <h1 className="font-display text-5xl sm:text-7xl lg:text-[5.35rem] font-normal tracking-[-0.01em] text-ivory leading-[1.02]">
               Great wins <br />
               start with{" "}
               <span className="italic font-normal text-accent-gold">
@@ -82,13 +94,13 @@ export default function HomePage() {
               </span>
             </h1>
 
-            <p className="max-w-lg text-base sm:text-[17px] text-ivory-muted font-normal leading-[1.7]">
+            <p className="max-w-lg text-base sm:text-[17px] text-ivory-muted font-normal leading-[1.72]">
               Hand-crafted by Gemini 3.8 Flash Deep Research. Mathematically
               balanced for the 100-credit cap — and the last-minute toss swap
               you secretly needed.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-3">
+            <div className="flex flex-wrap items-center gap-4 pt-2">
               <Button asChild variant="default" size="lg">
                 <Link href="/fantasy">
                   <span>EXPLORE 20-TEAM ARENA</span>
@@ -102,60 +114,18 @@ export default function HomePage() {
                 </Link>
               </Button>
             </div>
+
+            <div className="pt-4 flex flex-wrap items-center gap-6 text-[11px] font-mono text-ivory-dim tabular-score">
+              <span>GEMINI 3.8 FLASH (HIGH)</span>
+              <span>&bull;</span>
+              <span>HIGHS WASM SOLVER</span>
+              <span>&bull;</span>
+              <span>MUMBAI (BOM1) 4MS</span>
+            </div>
           </div>
 
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-md rounded-sm glass-card p-7 shadow-glass-panel border border-ivory/12 space-y-6">
-              <div className="flex items-center justify-between border-b border-ivory/10 pb-4">
-                <span className="eyebrow-label text-accent-gold">
-                  TONIGHT&apos;S CURATED FIXTURE
-                </span>
-                <span className="font-mono text-[11px] text-ivory-muted tabular-score">
-                  19:30 IST &bull; WANKHEDE
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between py-2">
-                <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-[0.2em] text-ivory-dim">
-                    HOME FRANCHISE
-                  </p>
-                  <p className="font-display text-3xl text-ivory">Mumbai</p>
-                  <p className="font-mono text-xs text-accent-gold tabular-score">
-                    Dew Index: 78 / 100
-                  </p>
-                </div>
-
-                <div className="font-display italic text-2xl text-ivory-dim">
-                  vs
-                </div>
-
-                <div className="space-y-1 text-right">
-                  <p className="text-xs uppercase tracking-[0.2em] text-ivory-dim">
-                    VISITING FRANCHISE
-                  </p>
-                  <p className="font-display text-3xl text-ivory">Chennai</p>
-                  <p className="font-mono text-xs text-[#8ec2a8] tabular-score">
-                    30 Lineups Ready
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2 border-t border-ivory/10 pt-4 text-xs text-ivory-muted">
-                <div className="flex items-center justify-between">
-                  <span>T-24h Provisional Pool</span>
-                  <span className="font-mono text-ivory tabular-score">
-                    30 / 30 Verified
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>T-30m Toss Auto-Swap Guard</span>
-                  <span className="font-mono text-accent-gold tabular-score">
-                    Armed &bull; &lt;1.2s
-                  </span>
-                </div>
-              </div>
-            </div>
+            <HeroFixtureConsole />
           </div>
         </div>
 
@@ -183,40 +153,12 @@ export default function HomePage() {
       </section>
 
       <section className="relative w-full cliffs-mist-bg py-24 sm:py-32 px-6 sm:px-10 lg:px-16 overflow-hidden border-t border-ivory/5">
-        <div className="mx-auto max-w-6xl relative flex flex-col items-center">
-          <p className="eyebrow-label mb-8 text-center">
-            ARCHITECTURE OF VICTORY &bull; TEN STADIUMS
-          </p>
-
-          <div className="relative w-full max-w-3xl aspect-16/10 overflow-hidden rounded-sm shadow-glass-panel border border-ivory/15">
-            <div
-              className="h-full w-full bg-cover bg-center transition-transform duration-700 hover:scale-105"
-              style={{
-                backgroundImage:
-                  "url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&w=1600&q=85')",
-              }}
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-stadium-navy/80 via-stadium-navy/20 to-transparent" />
-          </div>
-
-          <div className="pointer-events-none inset-x-0 top-1/2 -translate-y-1/2 sm:absolute flex items-center justify-between w-full px-2 sm:px-6 mt-6 sm:mt-0">
-            <span className="font-display text-4xl sm:text-6xl lg:text-7xl tracking-[0.28em] uppercase text-ivory drop-shadow-2xl">
-              THE
-            </span>
-            <span className="font-display text-4xl sm:text-6xl lg:text-7xl tracking-[0.28em] uppercase text-ivory drop-shadow-2xl">
-              ARENA
-            </span>
-          </div>
-
-          <p className="eyebrow-label mt-8 text-center tracking-[0.28em] text-ivory/80">
-            WANKHEDE &bull; CHEPAUK &bull; EDEN GARDENS &bull; CHINNASWAMY
-          </p>
-        </div>
+        <InteractiveArenaAtlas />
       </section>
 
       <section
         id="pavilion-chapters"
-        className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-12 py-20 space-y-12"
+        className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-12 py-24 space-y-12"
       >
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ivory/10 pb-8">
           <div className="space-y-2">
@@ -260,9 +202,25 @@ export default function HomePage() {
                   <p className="text-sm sm:text-[15px] text-ivory-muted leading-relaxed">
                     {chapter.description}
                   </p>
+
+                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2 rounded-sm bg-black/35 px-3.5 py-2.5 border border-ivory/8">
+                    <span className="text-[9px] uppercase tracking-[0.2em] text-ivory-dim">
+                      {chapter.telemetryLabel}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {chapter.telemetryStrip.map((pill, idx) => (
+                        <span
+                          key={idx}
+                          className="rounded-sm bg-ivory/[0.05] px-2 py-0.5 font-mono text-[10px] text-ivory/90 border border-ivory/10 tabular-score"
+                        >
+                          {pill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="mt-10 flex items-center justify-between border-t border-ivory/10 pt-5 text-xs uppercase tracking-[0.18em]">
+                <div className="mt-8 flex items-center justify-between border-t border-ivory/10 pt-5 text-xs uppercase tracking-[0.18em]">
                   <span className="text-ivory-dim tabular-score">
                     {chapter.metric}
                   </span>
@@ -276,6 +234,28 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      <footer className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-12 pt-8 pb-16">
+        <div className="gold-hairline mb-10" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-xs text-ivory-dim">
+          <div className="space-y-1">
+            <p className="font-display text-lg tracking-[0.28em] uppercase text-ivory">
+              CRICINTEL
+            </p>
+            <p className="text-[11px] text-ivory-dim">
+              Bespoke IPL Fantasy Intelligence &bull; Free-to-Play Analytical
+              Platform
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-6 text-[11px] uppercase tracking-[0.18em] tabular-score">
+            <span>T-24H PROVISIONAL</span>
+            <span>&bull;</span>
+            <span>T-30M TOSS AUTO-SWAP</span>
+            <span>&bull;</span>
+            <span>MUMBAI (AP-SOUTH-1)</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
