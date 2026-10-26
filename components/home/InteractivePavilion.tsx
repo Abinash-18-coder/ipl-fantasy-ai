@@ -177,7 +177,7 @@ export function HeroFixtureConsole() {
                 className={cn(
                   "relative flex-1 py-1.5 px-2 text-[10px] uppercase tracking-[0.14em] transition-colors cursor-pointer z-10 tabular-score",
                   isSelected
-                    ? "text-[#090b0c] font-bold"
+                    ? "text-stadium-navy font-bold"
                     : "text-ivory-muted hover:text-ivory"
                 )}
               >
@@ -185,7 +185,7 @@ export function HeroFixtureConsole() {
                   <motion.span
                     layoutId="hero-fixture-day-tab"
                     transition={SPRING_SNAPPY}
-                    className="absolute inset-0 -z-10 rounded-[2px] bg-accent-gold"
+                    className="absolute inset-0 -z-10 rounded-xs bg-accent-gold"
                   />
                 )}
                 {item.dayLabel}
@@ -265,7 +265,7 @@ export function HeroFixtureConsole() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 border-t border-ivory/10 pt-4 text-xs">
-              <div className="rounded-sm bg-ivory/[0.03] p-2.5 border border-ivory/8">
+              <div className="rounded-sm bg-ivory/3 p-2.5 border border-ivory/8">
                 <p className="text-[9px] uppercase tracking-[0.18em] text-ivory-dim">
                   GEMINI CORE CAPTAIN
                 </p>
@@ -273,7 +273,7 @@ export function HeroFixtureConsole() {
                   {fixture.coreCaptain}
                 </p>
               </div>
-              <div className="rounded-sm bg-ivory/[0.03] p-2.5 border border-ivory/8">
+              <div className="rounded-sm bg-ivory/3 p-2.5 border border-ivory/8">
                 <p className="text-[9px] uppercase tracking-[0.18em] text-ivory-dim">
                   PUNT DIFFERENTIAL
                 </p>
@@ -314,7 +314,7 @@ export function InteractiveArenaAtlas() {
         ARCHITECTURE OF VICTORY &bull; TEN STADIUMS
       </p>
 
-      <div className="relative w-full max-w-3xl aspect-[16/10] overflow-hidden rounded-sm shadow-glass-panel border border-ivory/15">
+      <div className="relative w-full max-w-3xl aspect-16/10 overflow-hidden rounded-sm shadow-glass-panel border border-ivory/15">
         <div
           className="h-full w-full bg-cover bg-center transition-transform duration-1000 hover:scale-105"
           style={{
@@ -322,7 +322,7 @@ export function InteractiveArenaAtlas() {
               "url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&w=1600&q=85')",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#090b0c]/85 via-[#090b0c]/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-stadium-navy/85 via-stadium-navy/20 to-transparent" />
 
         <div className="absolute bottom-4 left-5 right-5 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-ivory/90 tabular-score">
           <span className="rounded-full bg-black/65 backdrop-blur-md px-3 py-1 border border-ivory/15">

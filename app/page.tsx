@@ -75,8 +75,8 @@ export default function HomePage() {
                 "url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=2000&q=85')",
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#090b0c] via-[#090b0c]/88 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#090b0c] via-transparent to-[#090b0c]/60" />
+          <div className="absolute inset-0 bg-linear-to-r from-stadium-navy via-stadium-navy/88 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-stadium-navy via-transparent to-stadium-navy/60" />
         </div>
 
         <div className="mx-auto w-full max-w-7xl my-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center py-6">
@@ -211,7 +211,7 @@ export default function HomePage() {
                       {chapter.telemetryStrip.map((pill, idx) => (
                         <span
                           key={idx}
-                          className="rounded-sm bg-ivory/[0.05] px-2 py-0.5 font-mono text-[10px] text-ivory/90 border border-ivory/10 tabular-score"
+                          className="rounded-sm bg-ivory/5 px-2 py-0.5 font-mono text-[10px] text-ivory/90 border border-ivory/10 tabular-score"
                         >
                           {pill}
                         </span>
