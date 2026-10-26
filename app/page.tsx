@@ -7,6 +7,8 @@ import {
   HeroFixtureConsole,
   InteractiveArenaAtlas,
 } from "@/components/home/InteractivePavilion";
+import { DeconstructedBallShowcase } from "@/components/home/DeconstructedBallShowcase";
+import { LinearPipelineBento } from "@/components/home/LinearPipelineBento";
 
 const EDITORIAL_CHAPTERS = [
   {
@@ -69,21 +71,23 @@ export default function HomePage() {
       <section className="relative min-h-[calc(100vh-5rem)] w-full overflow-hidden flex flex-col justify-between px-6 sm:px-10 lg:px-16 pt-10 pb-8">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-35 scale-105"
+            className="absolute inset-0 bg-cover bg-center opacity-30 scale-105"
             style={{
               backgroundImage:
                 "url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=2000&q=85')",
             }}
           />
-          <div className="absolute inset-0 bg-linear-to-r from-stadium-navy via-stadium-navy/88 to-transparent" />
-          <div className="absolute inset-0 bg-linear-to-t from-stadium-navy via-transparent to-stadium-navy/60" />
+          <div className="absolute inset-0 bg-linear-to-r from-stadium-navy via-stadium-navy/90 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-stadium-navy via-transparent to-stadium-navy/65" />
         </div>
 
         <div className="mx-auto w-full max-w-7xl my-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center py-6">
           <div className="lg:col-span-7 space-y-7">
-            <div className="inline-flex items-center gap-2.5">
+            <div className="inline-flex items-center gap-2.5 rounded-full bg-ivory/4 border border-ivory/12 px-3.5 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-accent-gold animate-pulse-live" />
-              <p className="eyebrow-label">A LITTLE DATA. A LITTLE MAGIC.</p>
+              <p className="eyebrow-label text-[10px] tracking-[0.22em]">
+                A LITTLE DATA. A LITTLE MAGIC.
+              </p>
             </div>
 
             <h1 className="font-display text-5xl sm:text-7xl lg:text-[5.35rem] font-normal tracking-[-0.01em] text-ivory leading-[1.02]">
@@ -131,15 +135,15 @@ export default function HomePage() {
 
         <div className="mx-auto w-full max-w-7xl border-t border-ivory/10 pt-5 flex flex-wrap items-center justify-between gap-4 text-[11px] uppercase tracking-[0.22em] text-ivory-muted">
           <a
-            href="#pavilion-chapters"
+            href="#obsidian-anatomy"
             className="flex items-center gap-2 hover:text-ivory transition-colors"
           >
-            <span>SCROLL TO SHAPE YOUR LINEUPS</span>
+            <span>SCROLL TO DECONSTRUCT THE ENGINE</span>
             <ArrowDown className="h-3.5 w-3.5 text-accent-gold" />
           </a>
 
           <span className="tabular-score text-ivory/80">
-            01 / 04 &mdash; CRAFTED BY DEEP RESEARCH
+            01 / 04 &mdash; TAILORED FROM TELEMETRY
           </span>
 
           <Link
@@ -152,7 +156,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative w-full cliffs-mist-bg py-24 sm:py-32 px-6 sm:px-10 lg:px-16 overflow-hidden border-t border-ivory/5">
+      <div id="obsidian-anatomy">
+        <DeconstructedBallShowcase />
+      </div>
+
+      <LinearPipelineBento />
+
+      <section className="relative w-full cliffs-mist-bg py-24 sm:py-32 px-6 sm:px-10 lg:px-16 overflow-hidden border-t border-ivory/8">
         <InteractiveArenaAtlas />
       </section>
 
@@ -235,25 +245,104 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-12 pt-8 pb-16">
-        <div className="gold-hairline mb-10" />
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-xs text-ivory-dim">
-          <div className="space-y-1">
-            <p className="font-display text-lg tracking-[0.28em] uppercase text-ivory">
-              CRICINTEL
-            </p>
-            <p className="text-[11px] text-ivory-dim">
-              Bespoke IPL Fantasy Intelligence &bull; Free-to-Play Analytical
-              Platform
-            </p>
+      <footer className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-12 pt-10 pb-20 overflow-hidden">
+        <div className="gold-hairline mb-12" />
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 pb-14 border-b border-ivory/8 text-xs">
+          <div className="space-y-3">
+            <p className="eyebrow-label text-accent-gold">THE ENGINE</p>
+            <ul className="space-y-2 text-ivory-muted">
+              <li>
+                <Link href="/fantasy" className="hover:text-ivory transition-colors">
+                  T-24h Deep Research
+                </Link>
+              </li>
+              <li>
+                <Link href="/fantasy" className="hover:text-ivory transition-colors">
+                  HiGHS 100-Cr Solver
+                </Link>
+              </li>
+              <li>
+                <Link href="/fantasy" className="hover:text-ivory transition-colors">
+                  T-30m Toss Auto-Swap
+                </Link>
+              </li>
+            </ul>
           </div>
-          <div className="flex flex-wrap items-center gap-6 text-[11px] uppercase tracking-[0.18em] tabular-score">
-            <span>T-24H PROVISIONAL</span>
-            <span>&bull;</span>
-            <span>T-30M TOSS AUTO-SWAP</span>
-            <span>&bull;</span>
-            <span>MUMBAI (AP-SOUTH-1)</span>
+
+          <div className="space-y-3">
+            <p className="eyebrow-label text-accent-gold">TELEMETRY</p>
+            <ul className="space-y-2 text-ivory-muted">
+              <li>
+                <Link href="/scores" className="hover:text-ivory transition-colors">
+                  Live Scorecards
+                </Link>
+              </li>
+              <li>
+                <Link href="/analytics" className="hover:text-ivory transition-colors">
+                  Open-Meteo Dew Index
+                </Link>
+              </li>
+              <li>
+                <Link href="/analytics" className="hover:text-ivory transition-colors">
+                  Pitch Aerodynamics
+                </Link>
+              </li>
+            </ul>
           </div>
+
+          <div className="space-y-3">
+            <p className="eyebrow-label text-accent-gold">CALIBRATION</p>
+            <ul className="space-y-2 text-ivory-muted">
+              <li>
+                <Link href="/analytics" className="hover:text-ivory transition-colors">
+                  MAE &amp; Spearman Loop
+                </Link>
+              </li>
+              <li>
+                <Link href="/analytics" className="hover:text-ivory transition-colors">
+                  Computed Dream XI
+                </Link>
+              </li>
+              <li>
+                <Link href="/analytics" className="hover:text-ivory transition-colors">
+                  Venue Memory Store
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-3">
+            <p className="eyebrow-label text-accent-gold">PAVILION</p>
+            <ul className="space-y-2 text-ivory-muted">
+              <li>
+                <Link href="/settings" className="hover:text-ivory transition-colors">
+                  Member Sign In
+                </Link>
+              </li>
+              <li>
+                <Link href="/settings" className="hover:text-ivory transition-colors">
+                  Franchise Ambient Theme
+                </Link>
+              </li>
+              <li>
+                <span className="text-ivory-dim font-mono text-[11px] tabular-score">
+                  Mumbai (bom1) Active
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="py-10 text-center select-none pointer-events-none">
+          <p className="font-display text-5xl sm:text-8xl lg:text-[7.5rem] tracking-[0.28em] uppercase text-ivory/90 leading-none">
+            CRICINTEL
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.2em] text-ivory-dim tabular-score">
+          <span>&copy; 2026 CRICINTEL &bull; TAILORED FROM TELEMETRY</span>
+          <span>FREE-TO-PLAY ANALYTICAL PLATFORM &bull; NOT AFFILIATED WITH DREAM11</span>
         </div>
       </footer>
     </div>

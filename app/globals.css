@@ -4,15 +4,15 @@
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-serif), ui-serif, Georgia, serif;
 
-  --color-stadium-navy: #090b0c;
-  --color-stadium-surface: #101517;
-  --color-stadium-card: #151c1f;
-  --color-stadium-border: #242e32;
-  --color-mist-slate: #2c3a3e;
+  --color-stadium-navy: #060809;
+  --color-stadium-surface: #0d1114;
+  --color-stadium-card: #12181b;
+  --color-stadium-border: #222b30;
+  --color-mist-slate: #263338;
 
   --color-ivory: #f4f1ea;
   --color-ivory-muted: #b8b4aa;
-  --color-ivory-dim: #7e7b74;
+  --color-ivory-dim: #7a7770;
 
   --color-pitch-turf: #c8b273;
   --color-pitch-dark: #a89153;
@@ -32,13 +32,15 @@
   --color-franchise-pbks: #b5454c;
   --color-franchise-srh: #cf7642;
 
-  --shadow-turf-glow: 0 8px 30px -4px rgba(200, 178, 115, 0.22);
-  --shadow-gold-glow: 0 8px 30px -4px rgba(200, 178, 115, 0.25);
-  --shadow-glass-panel: 0 24px 60px -12px rgba(0, 0, 0, 0.65);
-  --shadow-dock: 0 20px 50px -8px rgba(0, 0, 0, 0.85);
+  --shadow-turf-glow: 0 8px 34px -4px rgba(200, 178, 115, 0.24);
+  --shadow-gold-glow: 0 8px 34px -4px rgba(200, 178, 115, 0.28);
+  --shadow-glass-panel: 0 28px 70px -12px rgba(0, 0, 0, 0.78);
+  --shadow-dock: 0 20px 50px -8px rgba(0, 0, 0, 0.88);
 
   --animate-shimmer: shimmer 2.6s infinite linear;
   --animate-pulse-live: pulseLive 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-mist-drift: mistDrift 18s ease-in-out infinite alternate;
+  --animate-border-beam: borderBeam 6s linear infinite;
 
   @keyframes shimmer {
     0% {
@@ -57,7 +59,25 @@
     }
     50% {
       opacity: 0.35;
-      transform: scale(1.06);
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes mistDrift {
+    0% {
+      transform: translate3d(-4%, -2%, 0) scale(1);
+    }
+    100% {
+      transform: translate3d(4%, 3%, 0) scale(1.08);
+    }
+  }
+
+  @keyframes borderBeam {
+    0% {
+      offset-distance: 0%;
+    }
+    100% {
+      offset-distance: 100%;
     }
   }
 }
@@ -68,7 +88,7 @@
   }
 
   * {
-    border-color: rgba(244, 241, 234, 0.09);
+    border-color: rgba(244, 241, 234, 0.08);
   }
 
   body {
@@ -89,8 +109,8 @@
 }
 
 .eyebrow-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.24em;
+  font-size: 0.68rem;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--color-ivory-muted);
   font-weight: 500;
@@ -99,8 +119,8 @@
 .glass-card {
   background: linear-gradient(
     180deg,
-    rgba(21, 28, 31, 0.76) 0%,
-    rgba(11, 15, 17, 0.9) 100%
+    rgba(18, 24, 27, 0.74) 0%,
+    rgba(8, 11, 13, 0.9) 100%
   );
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
@@ -108,24 +128,52 @@
 }
 
 .glass-navbar {
-  background: rgba(11, 15, 17, 0.82);
+  background: rgba(6, 8, 9, 0.78);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid rgba(244, 241, 234, 0.07);
 }
 
 .glass-dock {
-  background: rgba(14, 19, 21, 0.92);
+  background: rgba(10, 14, 16, 0.92);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(244, 241, 234, 0.12);
+}
+
+.starlight-grid {
+  background-size: 56px 56px;
+  background-image: linear-gradient(
+      to right,
+      rgba(244, 241, 234, 0.045) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(244, 241, 234, 0.045) 1px,
+      transparent 1px
+    );
+}
+
+.starlight-grid-glow {
+  background-size: 56px 56px;
+  background-image: linear-gradient(
+      to right,
+      rgba(200, 178, 115, 0.28) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(200, 178, 115, 0.28) 1px,
+      transparent 1px
+    );
 }
 
 .gold-hairline {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(200, 178, 115, 0.35) 50%,
+    rgba(200, 178, 115, 0.38) 50%,
     transparent 100%
   );
   height: 1px;
@@ -143,9 +191,9 @@
 .cliffs-mist-bg {
   background: linear-gradient(
     180deg,
-    #223034 0%,
-    #141d20 48%,
-    #090b0c 100%
+    #182226 0%,
+    #0d1316 48%,
+    #060809 100%
   );
 }
 

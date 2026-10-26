@@ -4,6 +4,7 @@ import { Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { MobileNav } from "@/components/MobileNav";
+import { CursorGridBackdrop } from "@/components/ui/CursorGridBackdrop";
 import { getServerEnv } from "@/lib/env";
 
 const env = getServerEnv();
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#090b0c",
+  themeColor: "#060809",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -50,6 +51,7 @@ export default function RootLayout({
       <body
         className={`${cormorant.variable} ${jakarta.variable} font-sans bg-stadium-navy text-ivory antialiased selection:bg-accent-gold selection:text-stadium-navy`}
       >
+        <CursorGridBackdrop />
         <div className="relative flex min-h-screen flex-col pb-24 md:pb-12">
           <Navbar />
           <main className="flex-1 w-full">{children}</main>

@@ -12,6 +12,7 @@ import {
   Search,
   Command,
   ArrowUpRight,
+  ChevronDown,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -50,10 +51,38 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+const PIPELINE_TIMELINE = [
+  {
+    title: "T-24h Deep Research Synthesis",
+    tag: "STAGE 01",
+    detail: "Gemini 3.8 Flash High evaluates 22 players across 4 buckets",
+    active: true,
+  },
+  {
+    title: "HiGHS WASM 100.0-Cr Solver",
+    tag: "STAGE 02",
+    detail: "Generates 30 mathematically legal, non-overlapping lineups",
+    active: false,
+  },
+  {
+    title: "T-30m Toss Playing-XI Auto-Swap",
+    tag: "STAGE 03",
+    detail: "Atomic PostgreSQL replacement of benched starters in <1.2s",
+    active: false,
+  },
+  {
+    title: "Post-Match MAE & Spearman Loop",
+    tag: "STAGE 04",
+    detail: "Ground-truth residual lessons injected into venue memory",
+    active: false,
+  },
+];
+
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [timelineOpen, setTimelineOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -63,6 +92,7 @@ export function Navbar() {
         setPaletteOpen((prev) => !prev);
       } else if (event.key === "Escape") {
         setPaletteOpen(false);
+        setTimelineOpen(false);
       }
     };
 
@@ -97,16 +127,22 @@ export function Navbar() {
     <>
       <header className="sticky top-0 z-40 w-full glass-navbar">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 sm:px-10 lg:px-12">
-          <Link
-            href="/"
-            className="font-display text-lg sm:text-xl tracking-[0.28em] uppercase text-ivory hover:text-accent-gold transition-colors focus:outline-none"
-          >
-            CRICINTEL
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              className="font-display text-lg sm:text-xl tracking-[0.32em] uppercase text-ivory hover:text-accent-gold transition-colors duration-300 focus:outline-none"
+            >
+              CRICINTEL
+            </Link>
+            <span className="hidden lg:inline-block h-3.5 w-px bg-ivory/15" />
+            <span className="hidden lg:inline-block font-mono text-[10px] uppercase tracking-[0.22em] text-ivory-dim tabular-score">
+              EST. 2026 &bull; MUMBAI EDGE
+            </span>
+          </div>
 
           <nav
             aria-label="Main Navigation"
-            className="hidden md:flex items-center gap-9"
+            className="hidden md:flex items-center gap-8"
           >
             {NAV_ITEMS.map((item) => {
               const isActive =
@@ -117,13 +153,16 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "relative py-2 text-[13px] tracking-[0.06em] transition-colors duration-300",
+                    "relative py-2 text-[13px] tracking-[0.06em] transition-colors duration-300 flex items-center gap-1.5",
                     isActive
                       ? "text-ivory font-medium"
                       : "text-ivory-muted hover:text-ivory"
                   )}
                 >
                   <span>{item.label}</span>
+                  {item.href === "/fantasy" && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent-gold animate-pulse-live" />
+                  )}
                   {isActive && (
                     <motion.span
                       layoutId="desktop-navbar-sliding-pill"
@@ -134,14 +173,98 @@ export function Navbar() {
                 </Link>
               );
             })}
+
+            <div
+              className="relative"
+              onMouseEnter={() => setTimelineOpen(true)}
+              onMouseLeave={() => setTimelineOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setTimelineOpen((prev) => !prev)}
+                className="flex items-center gap-1.5 py-2 text-[13px] tracking-[0.06em] text-ivory-muted hover:text-ivory transition-colors duration-300 cursor-pointer"
+              >
+                <Sparkles className="h-3 w-3 text-accent-gold" />
+                <span>Pipeline</span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-300",
+                    timelineOpen && "rotate-180 text-accent-gold"
+                  )}
+                />
+              </button>
+
+              <AnimatePresence>
+                {timelineOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={SPRING_GENTLE}
+                    className="absolute right-0 top-full pt-2 w-96 z-50"
+                  >
+                    <div className="rounded-sm glass-dock p-5 shadow-dock border border-ivory/15 space-y-4">
+                      <div className="flex items-center justify-between border-b border-ivory/10 pb-3">
+                        <span className="eyebrow-label text-accent-gold">
+                          AUTONOMOUS MATCH PIPELINE
+                        </span>
+                        <span className="font-mono text-[10px] text-ivory-dim tabular-score">
+                          v16.3.8 LIVE
+                        </span>
+                      </div>
+
+                      <div className="relative pl-5 space-y-4 before:absolute before:left-1.25 before:top-2 before:bottom-2 before:w-px before:bg-ivory/15">
+                        {PIPELINE_TIMELINE.map((step, idx) => (
+                          <div key={idx} className="relative group">
+                            <span
+                              className={cn(
+                                "absolute -left-5 top-1.5 h-2.5 w-2.5 rounded-full border transition-colors",
+                                step.active
+                                  ? "bg-accent-gold border-accent-gold shadow-turf-glow"
+                                  : "bg-stadium-navy border-ivory/35 group-hover:border-accent-gold"
+                              )}
+                            />
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs font-semibold text-ivory group-hover:text-accent-gold transition-colors">
+                                {step.title}
+                              </p>
+                              <span className="rounded-sm bg-ivory/5 px-1.5 py-0.5 font-mono text-[9px] text-accent-gold border border-ivory/10 tabular-score">
+                                {step.tag}
+                              </span>
+                            </div>
+                            <p className="mt-0.5 text-[11px] text-ivory-muted leading-relaxed">
+                              {step.detail}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="border-t border-ivory/10 pt-3 flex items-center justify-between text-[11px]">
+                        <span className="text-ivory-dim">
+                          Zero human intervention required
+                        </span>
+                        <Link
+                          href="/fantasy"
+                          onClick={() => setTimelineOpen(false)}
+                          className="text-accent-gold hover:underline flex items-center gap-1 font-medium"
+                        >
+                          <span>Inspect Arena</span>
+                          <ArrowUpRight className="h-3 w-3" />
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3.5">
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
               aria-label="Open Command Palette"
-              className="flex items-center gap-2 rounded-full border border-ivory/15 bg-ivory/3 px-3.5 py-1.5 text-xs text-ivory-muted hover:border-ivory/30 hover:text-ivory transition-colors cursor-pointer"
+              className="flex items-center gap-2 rounded-full border border-ivory/15 bg-ivory/3 px-3.5 py-1.5 text-xs text-ivory-muted hover:border-accent-gold/45 hover:text-ivory transition-colors cursor-pointer"
             >
               <Search className="h-3.5 w-3.5 text-accent-gold" />
               <kbd className="hidden sm:inline-flex items-center gap-0.5 font-mono text-[10px] tracking-wider text-ivory-muted">
