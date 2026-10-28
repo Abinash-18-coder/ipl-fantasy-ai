@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MorphTransition } from "@/components/ui/view-transition";
 import { AuthSheet } from "@/components/auth/AuthSheet";
+import { FranchiseThemeSelector } from "@/components/settings/FranchiseThemeSelector";
 import { getMemberRlsSnapshot } from "@/lib/supabase/queries";
 
 const PRIVACY_PILLARS = [
@@ -54,7 +55,7 @@ export default async function SettingsPage() {
   const rlsSnapshot = await getMemberRlsSnapshot();
 
   return (
-    <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-12 py-12 space-y-12">
+    <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-12 py-12 space-y-16">
       <MorphTransition name="hero-settings">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           <div className="lg:col-span-5 space-y-6 pt-2">
@@ -147,6 +148,11 @@ export default async function SettingsPage() {
           </div>
         </div>
       </MorphTransition>
+
+      <FranchiseThemeSelector
+        franchises={rlsSnapshot.franchises}
+        initialProfile={rlsSnapshot.profile}
+      />
     </div>
   );
 }
