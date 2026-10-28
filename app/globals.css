@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-serif), ui-serif, Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
 
   --color-stadium-navy: #060809;
   --color-stadium-surface: #0d1114;
@@ -94,13 +94,14 @@
   body {
     background-color: var(--color-stadium-navy);
     color: var(--color-ivory);
+    font-family: var(--font-sans);
     overflow-x: hidden;
     min-height: 100vh;
   }
 }
 
 .font-display {
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-serif);
 }
 
 .tabular-score {

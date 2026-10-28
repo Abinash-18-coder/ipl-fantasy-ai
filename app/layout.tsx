@@ -1,3 +1,4 @@
+
 import React from "react";
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
@@ -7,22 +8,22 @@ import { MobileNav } from "@/components/MobileNav";
 import { CursorGridBackdrop } from "@/components/ui/CursorGridBackdrop";
 import { getServerEnv } from "@/lib/env";
 
-const env = getServerEnv();
-
-const cormorant = Cormorant_Garamond({
+const cormorantGaramond = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
+  variable: "--font-cormorant-garamond",
   display: "swap",
-  variable: "--font-serif",
 });
 
-const jakarta = Plus_Jakarta_Sans({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  variable: "--font-plus-jakarta-sans",
   display: "swap",
-  variable: "--font-sans",
 });
+
+const env = getServerEnv();
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
@@ -47,10 +48,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${cormorant.variable} ${jakarta.variable} font-sans bg-stadium-navy text-ivory antialiased selection:bg-accent-gold selection:text-stadium-navy`}
-      >
+    <html
+      lang="en"
+      className={`dark ${cormorantGaramond.variable} ${plusJakartaSans.variable}`}
+    >
+      <body className="font-sans bg-stadium-navy text-ivory antialiased selection:bg-accent-gold selection:text-stadium-navy">
         <CursorGridBackdrop />
         <div className="relative flex min-h-screen flex-col pb-24 md:pb-12">
           <Navbar />
