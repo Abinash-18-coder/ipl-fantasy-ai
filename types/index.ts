@@ -29,10 +29,17 @@ export interface NavItem {
 
 export type {
   AccountTier,
+  TossDecision,
   CareerSeasonSummary,
   CareerStats3Yr,
   StadiumRow,
   FranchiseRow,
   UserProfileRow,
   PlayerRow,
+  LiveScoreSummaryJson,
+  MatchRow,
+  FantasyTeamPlayerSlot,
+  SwapLogEntry,
+  FantasyTeamRow,
+  UserTeamAllocationRow,
 } from "./database";
