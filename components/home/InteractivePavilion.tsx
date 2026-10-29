@@ -1,27 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-
-interface CuratedFixture {
-  id: string;
-  dayLabel: string;
-  matchNumber: string;
-  timeIst: string;
-  venue: string;
-  homeCity: string;
-  homeCode: string;
-  awayCity: string;
-  awayCode: string;
-  dewIndex: number;
-  parScore: string;
-  soilProfile: string;
-  ambientHex: string;
-  coreCaptain: string;
-  differentialPick: string;
-}
+import type {
+  RollingFixtureCardItem,
+  RollingFixturesApiResponse,
+} from "@/types";
 
 interface StadiumProfile {
   id: string;
@@ -36,61 +22,84 @@ interface StadiumProfile {
   eveningDewNote: string;
 }
 
-const ROLLING_FIXTURES: readonly [
-  CuratedFixture,
-  CuratedFixture,
-  CuratedFixture,
-] = [
+const INITIAL_ROLLING_FIXTURES: readonly RollingFixtureCardItem[] = [
   {
-    id: "mi-csk",
-    dayLabel: "Today • T-6h",
-    matchNumber: "Match 42",
-    timeIst: "19:30 IST • Wankhede",
-    venue: "Wankhede Stadium",
-    homeCity: "Mumbai",
-    homeCode: "MI",
-    awayCity: "Chennai",
-    awayCode: "CSK",
-    dewIndex: 78,
-    parScore: "198 – 206",
-    soilProfile: "Red Soil • True Bounce",
-    ambientHex: "rgba(59, 110, 165, 0.22)",
-    coreCaptain: "H. Pandya (2x)",
-    differentialPick: "M. Pathirana (Death)",
+    id: "ipl-sim-match-42",
+    external_match_id: "ipl-sim-match-42",
+    day_offset: 0,
+    day_label: "Today • LIVE",
+    match_number: 42,
+    match_date: "2026-10-29",
+    start_time_utc: "2026-10-29T14:00:00.000Z",
+    time_ist_label: "19:30 IST • Wankhede",
+    is_day_match: false,
+    status: "LIVE",
+    status_note: "Chennai Super Kings need 42 runs in 24 balls",
+    venue_slug: "wankhede",
+    venue_name: "Wankhede Stadium",
+    soil_profile: "Red Soil • True Bounce",
+    home_code: "MI",
+    home_city: "Mumbai",
+    home_primary_hex: "#3b6ea5",
+    away_code: "CSK",
+    away_city: "Chennai",
+    dew_index: 78,
+    par_score_label: "198 – 206",
+    core_captain: "H. Pandya (2x)",
+    differential_pick: "M. Pathirana (Death)",
+    lineup_pool_count: 30,
   },
   {
-    id: "rcb-kkr",
-    dayLabel: "Tomorrow • T-24h",
-    matchNumber: "Match 43",
-    timeIst: "19:30 IST • Chinnaswamy",
-    venue: "M. Chinnaswamy",
-    homeCity: "Bengaluru",
-    homeCode: "RCB",
-    awayCity: "Kolkata",
-    awayCode: "KKR",
-    dewIndex: 84,
-    parScore: "212 – 224",
-    soilProfile: "Flat Deck • Short Square",
-    ambientHex: "rgba(184, 66, 66, 0.20)",
-    coreCaptain: "V. Kohli (2x)",
-    differentialPick: "A. Russell (1.5x)",
+    id: "ipl-sim-match-43",
+    external_match_id: "ipl-sim-match-43",
+    day_offset: 1,
+    day_label: "Tomorrow • T-24h",
+    match_number: 43,
+    match_date: "2026-10-30",
+    start_time_utc: "2026-10-30T14:00:00.000Z",
+    time_ist_label: "19:30 IST • Chinnaswamy",
+    is_day_match: false,
+    status: "UPCOMING",
+    status_note: "T-24h Provisional 30-Team Pool Synthesized",
+    venue_slug: "chinnaswamy",
+    venue_name: "M. Chinnaswamy Stadium",
+    soil_profile: "Flat Deck • Short Square",
+    home_code: "RCB",
+    home_city: "Bengaluru",
+    home_primary_hex: "#b84242",
+    away_code: "KKR",
+    away_city: "Kolkata",
+    dew_index: 84,
+    par_score_label: "214 – 222",
+    core_captain: "V. Kohli (2x)",
+    differential_pick: "A. Russell (1.5x)",
+    lineup_pool_count: 30,
   },
   {
-    id: "csk-rr",
-    dayLabel: "Day +2 • Preview",
-    matchNumber: "Match 44",
-    timeIst: "15:30 IST • Chepauk",
-    venue: "M. A. Chidambaram",
-    homeCity: "Chennai",
-    homeCode: "CSK",
-    awayCity: "Rajasthan",
-    awayCode: "RR",
-    dewIndex: 34,
-    parScore: "168 – 176",
-    soilProfile: "Dry Clay • Grip & Turn",
-    ambientHex: "rgba(217, 167, 74, 0.18)",
-    coreCaptain: "R. Jadeja (2x)",
-    differentialPick: "Y. Chahal (Spin)",
+    id: "ipl-sim-match-44",
+    external_match_id: "ipl-sim-match-44",
+    day_offset: 2,
+    day_label: "Day +2 • Preview",
+    match_number: 44,
+    match_date: "2026-10-31",
+    start_time_utc: "2026-10-31T10:00:00.000Z",
+    time_ist_label: "15:30 IST • Chepauk",
+    is_day_match: true,
+    status: "UPCOMING",
+    status_note: "Afternoon Spin Deck • T-48h Radar Active",
+    venue_slug: "chepauk",
+    venue_name: "M. A. Chidambaram Stadium",
+    soil_profile: "Dry Clay • Grip & Turn",
+    home_code: "CSK",
+    home_city: "Chennai",
+    home_primary_hex: "#d9a74a",
+    away_code: "RR",
+    away_city: "Jaipur",
+    dew_index: 34,
+    par_score_label: "170 – 178",
+    core_captain: "R. Jadeja (2x)",
+    differential_pick: "Y. Chahal (Spin)",
+    lineup_pool_count: 30,
   },
 ];
 
@@ -155,29 +164,60 @@ const STADIUM_ATLAS: readonly [
 ];
 
 export function HeroFixtureConsole() {
+  const [fixtures, setFixtures] = useState<readonly RollingFixtureCardItem[]>(
+    INITIAL_ROLLING_FIXTURES
+  );
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
-  const fixture = ROLLING_FIXTURES[selectedIdx] ?? ROLLING_FIXTURES[0];
+  const [syncedDb, setSyncedDb] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadRollingWindow() {
+      try {
+        const res = await fetch("/api/fixtures/rolling", {
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const json = (await res.json()) as RollingFixturesApiResponse;
+        if (isMounted && Array.isArray(json.fixtures) && json.fixtures.length > 0) {
+          setFixtures(json.fixtures);
+          setSyncedDb(json.synced_with_supabase);
+        }
+      } catch {
+        return;
+      }
+    }
+
+    loadRollingWindow();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const fixture = fixtures[selectedIdx] ?? fixtures[0] ?? INITIAL_ROLLING_FIXTURES[0]!;
 
   return (
     <div className="relative w-full max-w-md">
       <div
         className="pointer-events-none absolute -inset-8 -z-10 rounded-full blur-3xl transition-colors duration-700"
-        style={{ backgroundColor: fixture.ambientHex }}
+        style={{ backgroundColor: `${fixture.home_primary_hex}35` }}
       />
 
       <div className="rounded-sm glass-card p-6 sm:p-7 shadow-glass-panel border border-ivory/15 space-y-6">
         <div className="flex items-center justify-between gap-1 rounded-sm bg-black/40 p-1 border border-ivory/10">
-          {ROLLING_FIXTURES.map((item, idx) => {
+          {fixtures.map((item, idx) => {
             const isSelected = idx === selectedIdx;
             return (
               <button
-                key={item.id}
+                key={item.external_match_id}
                 type="button"
                 onClick={() => setSelectedIdx(idx)}
                 className={cn(
                   "relative flex-1 py-1.5 px-2 text-[10px] uppercase tracking-[0.14em] transition-colors cursor-pointer z-10 tabular-score",
                   isSelected
-                    ? "text-stadium-navy font-bold"
+                    ? "text-[#090b0c] font-bold"
                     : "text-ivory-muted hover:text-ivory"
                 )}
               >
@@ -188,7 +228,7 @@ export function HeroFixtureConsole() {
                     className="absolute inset-0 -z-10 rounded-xs bg-accent-gold"
                   />
                 )}
-                {item.dayLabel}
+                {item.day_label}
               </button>
             );
           })}
@@ -196,7 +236,7 @@ export function HeroFixtureConsole() {
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={fixture.id}
+            key={fixture.external_match_id}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
@@ -205,23 +245,23 @@ export function HeroFixtureConsole() {
           >
             <div className="flex items-center justify-between border-b border-ivory/10 pb-3.5">
               <span className="eyebrow-label text-accent-gold">
-                {fixture.matchNumber} &bull; CURATED FIXTURE
+                MATCH {fixture.match_number} &bull; {fixture.match_date}
               </span>
               <span className="font-mono text-[11px] text-ivory-muted tabular-score">
-                {fixture.timeIst}
+                {fixture.time_ist_label}
               </span>
             </div>
 
             <div className="flex items-center justify-between py-1">
               <div className="space-y-1">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-ivory-dim">
-                  HOME ({fixture.homeCode})
+                  HOME ({fixture.home_code})
                 </p>
                 <p className="font-display text-3xl sm:text-4xl text-ivory">
-                  {fixture.homeCity}
+                  {fixture.home_city}
                 </p>
                 <p className="font-mono text-xs text-accent-gold tabular-score">
-                  Dew Index: {fixture.dewIndex} / 100
+                  Dew Index: {fixture.dew_index} / 100
                 </p>
               </div>
 
@@ -230,19 +270,19 @@ export function HeroFixtureConsole() {
                   vs
                 </span>
                 <span className="mt-1 font-mono text-[10px] text-ivory-dim tabular-score">
-                  Par {fixture.parScore}
+                  Par {fixture.par_score_label}
                 </span>
               </div>
 
               <div className="space-y-1 text-right">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-ivory-dim">
-                  AWAY ({fixture.awayCode})
+                  AWAY ({fixture.away_code})
                 </p>
                 <p className="font-display text-3xl sm:text-4xl text-ivory">
-                  {fixture.awayCity}
+                  {fixture.away_city}
                 </p>
                 <p className="font-mono text-xs text-[#8ec2a8] tabular-score">
-                  30 Lineups Ready
+                  {fixture.lineup_pool_count} Lineups Ready
                 </p>
               </div>
             </div>
@@ -251,13 +291,13 @@ export function HeroFixtureConsole() {
               <div className="flex items-center justify-between text-[11px]">
                 <span className="text-ivory-muted">Evening Dew &amp; Surface</span>
                 <span className="font-mono text-ivory tabular-score">
-                  {fixture.soilProfile}
+                  {fixture.soil_profile}
                 </span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-ivory/10">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${fixture.dewIndex}%` }}
+                  animate={{ width: `${fixture.dew_index}%` }}
                   transition={SPRING_GENTLE}
                   className="h-full rounded-full bg-gold-gradient"
                 />
@@ -270,7 +310,7 @@ export function HeroFixtureConsole() {
                   GEMINI CORE CAPTAIN
                 </p>
                 <p className="mt-1 font-mono text-xs text-ivory font-medium tabular-score">
-                  {fixture.coreCaptain}
+                  {fixture.core_captain}
                 </p>
               </div>
               <div className="rounded-sm bg-ivory/3 p-2.5 border border-ivory/8">
@@ -278,16 +318,16 @@ export function HeroFixtureConsole() {
                   PUNT DIFFERENTIAL
                 </p>
                 <p className="mt-1 font-mono text-xs text-accent-gold font-medium tabular-score">
-                  {fixture.differentialPick}
+                  {fixture.differential_pick}
                 </p>
               </div>
             </div>
 
             <div className="space-y-1.5 border-t border-ivory/10 pt-3.5 text-xs text-ivory-muted">
               <div className="flex items-center justify-between">
-                <span>Solver Bucket Split</span>
+                <span>Rolling 3-Day Window</span>
                 <span className="font-mono text-[11px] text-ivory tabular-score">
-                  5 Core &bull; 15 Form &bull; 5 Hist &bull; 5 Punt
+                  {syncedDb ? "Supabase DB Synced" : "Redis Edge Cached"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -322,7 +362,7 @@ export function InteractiveArenaAtlas() {
               "url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&w=1600&q=85')",
           }}
         />
-        <div className="absolute inset-0 bg-linear-to-t from-stadium-navy/85 via-stadium-navy/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-[#090b0c]/85 via-[#090b0c]/20 to-transparent" />
 
         <div className="absolute bottom-4 left-5 right-5 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-ivory/90 tabular-score">
           <span className="rounded-full bg-black/65 backdrop-blur-md px-3 py-1 border border-ivory/15">

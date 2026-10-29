@@ -58,4 +58,6 @@ export type {
   NormalizedMatchSquadAndToss,
   CricketApiEnvelope,
   CachedCricketEnvelope,
+  RollingFixtureCardItem,
+  RollingFixturesApiResponse,
 } from "./cricket";

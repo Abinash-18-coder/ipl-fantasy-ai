@@ -141,3 +141,40 @@ export interface CachedCricketEnvelope<T> extends CricketApiEnvelope<T> {
   cache_key: string;
   ttl_seconds: number;
 }
+
+export interface RollingFixtureCardItem {
+  id: string;
+  external_match_id: string;
+  day_offset: number;
+  day_label: string;
+  match_number: number;
+  match_date: string;
+  start_time_utc: string;
+  time_ist_label: string;
+  is_day_match: boolean;
+  status: MatchStatus;
+  status_note: string;
+  venue_slug: string;
+  venue_name: string;
+  soil_profile: string;
+  home_code: FranchiseCode;
+  home_city: string;
+  home_primary_hex: string;
+  away_code: FranchiseCode;
+  away_city: string;
+  dew_index: number;
+  par_score_label: string;
+  core_captain: string;
+  differential_pick: string;
+  lineup_pool_count: number;
+}
+
+export interface RollingFixturesApiResponse {
+  ok: boolean;
+  window_start_date: string;
+  window_end_date: string;
+  source: CricketDataSource;
+  cache_status: CacheShieldStatus;
+  synced_with_supabase: boolean;
+  fixtures: RollingFixtureCardItem[];
+}
