@@ -43,3 +43,16 @@ export type {
   FantasyTeamRow,
   UserTeamAllocationRow,
 } from "./database";
+
+export type {
+  CricketDataSource,
+  BatterInningsStat,
+  BowlerSpellStat,
+  BallDeliveryEvent,
+  InningsScorecard,
+  NormalizedMatchFixture,
+  NormalizedMatchScorecard,
+  SquadPlayerEntry,
+  NormalizedMatchSquadAndToss,
+  CricketApiEnvelope,
+} from "./cricket";
