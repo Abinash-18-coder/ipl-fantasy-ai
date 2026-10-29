@@ -7,6 +7,10 @@ import type {
 
 export type CricketDataSource = "LIVE_API" | "PRE_SEASON_SIMULATION";
 
+export type CacheShieldStatus = "REDIS_HIT" | "MEMORY_HIT" | "COALESCED_HIT" | "MISS";
+
+export type CacheBackendMode = "UPSTASH_REDIS" | "IN_MEMORY_FALLBACK";
+
 export interface BatterInningsStat {
   player_external_id: string;
   player_name: string;
@@ -129,4 +133,11 @@ export interface CricketApiEnvelope<T> {
   fetched_at_utc: string;
   data: T;
   error_message?: string;
+}
+
+export interface CachedCricketEnvelope<T> extends CricketApiEnvelope<T> {
+  cache_status: CacheShieldStatus;
+  cache_backend: CacheBackendMode;
+  cache_key: string;
+  ttl_seconds: number;
 }

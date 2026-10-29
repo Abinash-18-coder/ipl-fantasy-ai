@@ -46,6 +46,8 @@ export type {
 
 export type {
   CricketDataSource,
+  CacheShieldStatus,
+  CacheBackendMode,
   BatterInningsStat,
   BowlerSpellStat,
   BallDeliveryEvent,
@@ -55,4 +57,5 @@ export type {
   SquadPlayerEntry,
   NormalizedMatchSquadAndToss,
   CricketApiEnvelope,
+  CachedCricketEnvelope,
 } from "./cricket";
