@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="bg_rcb-devdutt-padikkal" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B192C"/>
+      <stop offset="100%" stop-color="#05080C"/>
+    </linearGradient>
+    <linearGradient id="skin_rcb-devdutt-padikkal" x1="100" y1="40" x2="100" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A66A43"/>
+      <stop offset="100%" stop-color="#824D2B"/>
+    </linearGradient>
+    <linearGradient id="jersey_rcb-devdutt-padikkal" x1="30" y1="138" x2="170" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A8242B"/>
+      <stop offset="100%" stop-color="#14181D"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="36" fill="url(#bg_rcb-devdutt-padikkal)"/>
+  <circle cx="100" cy="96" r="78" fill="#A8242B" fill-opacity="0.12"/>
+  <path d="M22 200C26 156 54 140 100 140C146 140 174 156 178 200H22Z" fill="url(#jersey_rcb-devdutt-padikkal)"/>
+  <path d="M34 158L70 144M166 158L130 144" stroke="#F4F1EA" stroke-opacity="0.85" stroke-width="4" stroke-linecap="round"/>
+  <path d="M38 166L72 152M162 166L128 152" stroke="#F4F1EA" stroke-opacity="0.55" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="82" y="118" width="36" height="34" rx="14" fill="#824D2B"/>
+  <path d="M82 126C90 136 110 136 118 126V138H82V126Z" fill="#5E3317" fill-opacity="0.55"/>
+  <path d="M74 138L100 168L126 138" fill="none" stroke="#C8B273" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M78 138L100 163L122 138" fill="none" stroke="#F4F1EA" stroke-width="2.5" stroke-linejoin="round"/>
+  
+  <ellipse cx="52" cy="90" rx="7" ry="13" fill="#824D2B"/>
+  <ellipse cx="148" cy="90" rx="7" ry="13" fill="#824D2B"/>
+  <path d="M56 68C56 44 74 32 100 32C126 32 144 44 144 68V94C144 120 126 138 100 138C74 138 56 120 56 94V68Z" fill="url(#skin_rcb-devdutt-padikkal)"/>
+  <ellipse cx="82" cy="60" rx="18" ry="8" fill="#C28760" fill-opacity="0.35"/>
+  <path d="M69 75C76 70 86 70 92 74M108 74C114 70 124 70 131 75" stroke="#141111" stroke-width="4.2" stroke-linecap="round"/>
+  <ellipse cx="81" cy="83" rx="6.5" ry="4" fill="#FFFFFF"/>
+  <ellipse cx="119" cy="83" rx="6.5" ry="4" fill="#FFFFFF"/>
+  <circle cx="81" cy="83" r="3.4" fill="#1E1410"/>
+  <circle cx="119" cy="83" r="3.4" fill="#1E1410"/>
+  <circle cx="82.2" cy="81.8" r="1.1" fill="#FFFFFF"/>
+  <circle cx="120.2" cy="81.8" r="1.1" fill="#FFFFFF"/>
+  <path d="M100 78V96C96 99 104 99 100 96" stroke="#5E3317" stroke-width="3" stroke-linecap="round"/>
+  <path d="M58 92C58 118 74 138 100 138C126 138 142 118 142 92C136 104 126 110 116 110C110 103 90 103 84 110C74 110 64 104 58 92Z" fill="#181515" fill-opacity="0.42"/><path d="M86 112C94 116 106 116 114 112" stroke="#E8B090" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M44 76C42 40 56 18 100 18C144 18 158 40 156 76C158 105 164 128 152 136C146 112 148 86 144 68C136 48 120 42 100 42C80 42 64 48 56 68C52 86 54 112 48 136C36 128 42 105 44 76Z" fill="#141212"/>
+  
+</svg>

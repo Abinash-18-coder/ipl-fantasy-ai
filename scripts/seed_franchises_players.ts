@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
+import { ensureCustomPlayerAvatarFile } from "./generate_player_avatars";
 import type {
   CareerStats3Yr,
   FranchiseCode,
@@ -375,7 +376,7 @@ const SQUADS_BY_FRANCHISE: Record<
     ["Abhinandan Singh", "A. Singh", "BOWL", 6.0, false, true, 4.4],
     ["Mohit Rathee", "M. Rathee", "ALL", 6.0, false, true, 4.1],
     ["Kanishk Chouhan", "K. Chouhan", "ALL", 6.0, false, true, 4.0],
-    ["wanindu Hasaranga", "W. Hasaranga", "ALL", 8.5, true, false, 34.0],
+    ["Wanindu Hasaranga", "W. Hasaranga", "ALL", 8.5, true, false, 34.0],
     ["Avinash Singh", "Av. Singh", "BOWL", 6.0, false, true, 4.3],
   ],
   KKR: [
@@ -430,7 +431,7 @@ const SQUADS_BY_FRANCHISE: Record<
     ["Navdeep Saini", "N. Saini", "BOWL", 7.0, false, false, 9.1],
     ["Abid Mushtaq", "A. Mushtaq", "ALL", 6.0, false, true, 4.3],
     ["Donovan Ferreira", "D. Ferreira", "WK", 7.0, true, false, 8.7],
-    ["kartik Tyagi", "K. Tyagi", "BOWL", 6.5, false, false, 7.5],
+    ["Kartik Tyagi", "K. Tyagi", "BOWL", 6.5, false, false, 7.5],
   ],
   GT: [
     ["Shubman Gill", "S. Gill", "BAT", 10.0, false, false, 85.7],
@@ -722,6 +723,11 @@ async function runSeed(): Promise<void> {
       const externalId = `${franchise.code.toLowerCase()}-${toSlug(fullName)}`;
       const formPoints = buildDeterministicFormPoints(credits, idx);
       const seasonTotal = formPoints.reduce((sum, val) => sum + val, 0);
+      const customAvatarUrl = ensureCustomPlayerAvatarFile(
+        externalId,
+        franchise.code,
+        idx
+      );
 
       allPlayerRows.push({
         external_api_id: externalId,
@@ -735,7 +741,7 @@ async function runSeed(): Promise<void> {
           role === "BOWL" || role === "ALL"
             ? "Right-arm seam / spin"
             : null,
-        avatar_url: "/avatars/player-silhouette.svg",
+        avatar_url: customAvatarUrl,
         is_overseas: isOverseas,
         is_uncapped_debutant: isUncapped,
         selection_pct: selectionPct,
@@ -756,7 +762,7 @@ async function runSeed(): Promise<void> {
   }
 
   console.log(
-    `✅ Successfully seeded ${upsertedStadiums?.length ?? 0} stadiums, ${upsertedFranchises?.length ?? 0} franchises, and ${allPlayerRows.length} squad players into Supabase Mumbai!`
+    `✅ Successfully generated 250 player portraits and seeded ${upsertedStadiums?.length ?? 0} stadiums, ${upsertedFranchises?.length ?? 0} franchises, and ${allPlayerRows.length} squad players into Supabase Mumbai!`
   );
 }
 
