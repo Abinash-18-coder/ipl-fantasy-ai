@@ -24,6 +24,7 @@ import { RollingDigitTicker } from "@/components/scores/RollingDigitTicker";
 import { OverTrackerStrip } from "@/components/scores/OverTrackerStrip";
 import { WinProbabilityMeter } from "@/components/scores/WinProbabilityMeter";
 import { ScorecardTables } from "@/components/scores/ScorecardTables";
+import { UpcomingScheduleCarousel } from "@/components/scores/UpcomingScheduleCarousel";
 import { Button } from "@/components/ui/button";
 import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -64,6 +65,9 @@ export function MatchAmbientHeader({
   initialCacheStatus,
 }: MatchAmbientHeaderProps) {
   const [activeIdx, setActiveIdx] = useState<number>(0);
+  const [activeExternalId, setActiveExternalId] = useState<string>(
+    initialFixtures[0]?.external_match_id ?? "ipl-sim-match-42"
+  );
   const [scorecard, setScorecard] =
     useState<NormalizedMatchScorecard>(initialScorecard);
   const [cacheStatus, setCacheStatus] =
@@ -212,8 +216,9 @@ export function MatchAmbientHeader({
     idx: number
   ) => {
     setActiveIdx(idx);
-    setCustomHome(null);
-    setCustomAway(null);
+    setActiveExternalId(fixture.external_match_id);
+    setCustomHome(fixture.home_code);
+    setCustomAway(fixture.away_code);
     setRefreshing(true);
 
     if (idx === 0) {
@@ -297,7 +302,8 @@ export function MatchAmbientHeader({
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-ivory/10 pb-6">
         <div className="inline-flex items-center gap-1.5 rounded-sm bg-black/50 p-1.5 border border-ivory/12">
           {initialFixtures.map((item, idx) => {
-            const isSelected = idx === activeIdx && !customHome;
+            const isSelected =
+              item.external_match_id === activeExternalId;
             return (
               <button
                 key={item.external_match_id}
@@ -608,6 +614,14 @@ export function MatchAmbientHeader({
         liveChaseRuns={chaseRuns}
         liveChaseWickets={chaseWickets}
         liveChaseOvers={oversFormatted}
+      />
+
+      <UpcomingScheduleCarousel
+        rollingFixtures={initialFixtures}
+        activeMatchId={activeExternalId}
+        onSelectFixture={(fixture, tabIdx) =>
+          handleSelectFixtureTab(fixture, tabIdx)
+        }
       />
 
       <div className="rounded-sm glass-card p-6 border border-ivory/12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
