@@ -22,6 +22,7 @@ import {
 } from "@/lib/theme/franchiseTheme";
 import { RollingDigitTicker } from "@/components/scores/RollingDigitTicker";
 import { OverTrackerStrip } from "@/components/scores/OverTrackerStrip";
+import { WinProbabilityMeter } from "@/components/scores/WinProbabilityMeter";
 import { ScorecardTables } from "@/components/scores/ScorecardTables";
 import { Button } from "@/components/ui/button";
 import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
@@ -288,6 +289,8 @@ export function MatchAmbientHeader({
   const currentBowler =
     activeInningsForStream?.bowlers.find((b) => b.is_current_bowler)
       ?.short_name ?? "J. Bumrah";
+  const currentDewIndex =
+    selectedFixture?.dew_index ?? scorecard.fixture.dew_index;
 
   return (
     <div className="space-y-10">
@@ -379,12 +382,7 @@ export function MatchAmbientHeader({
               <span className="flex items-center gap-1.5">
                 <Droplets className="h-3.5 w-3.5 text-accent-gold" />
                 Dew Index:{" "}
-                <RollingDigitTicker
-                  value={
-                    selectedFixture?.dew_index ?? scorecard.fixture.dew_index
-                  }
-                  suffix="/100"
-                />
+                <RollingDigitTicker value={currentDewIndex} suffix="/100" />
               </span>
               <span>&bull;</span>
               <span className="flex items-center gap-1.5 text-ivory">
@@ -591,6 +589,16 @@ export function MatchAmbientHeader({
         currentBowlerName={currentBowler}
         battingCode={effectiveAwayCode}
         bowlingCode={effectiveHomeCode}
+      />
+
+      <WinProbabilityMeter
+        homeCode={effectiveHomeCode}
+        awayCode={effectiveAwayCode}
+        liveDeliveries={recentBalls}
+        runsNeeded={runsNeeded}
+        ballsRemaining={ballsRemaining}
+        wicketsLost={chaseWickets}
+        dewIndex={currentDewIndex}
       />
 
       <ScorecardTables
