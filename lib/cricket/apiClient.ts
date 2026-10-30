@@ -35,7 +35,10 @@ function isPlaceholderApiKey(apiKey: string): boolean {
   );
 }
 
-function normalizeFranchiseCode(raw: unknown, fallback: FranchiseCode): FranchiseCode {
+function normalizeFranchiseCode(
+  raw: unknown,
+  fallback: FranchiseCode
+): FranchiseCode {
   if (typeof raw !== "string") return fallback;
   const upper = raw.trim().toUpperCase();
   const found = VALID_FRANCHISE_CODES.find((code) => code === upper);
@@ -106,10 +109,10 @@ function buildPreSeasonFixtures(): NormalizedMatchFixture[] {
       is_day_match: false,
       status: "UPCOMING",
       status_note: "T-24h Provisional 30-Team Pool Synthesized",
-      home_score_short: "Yet to bat",
-      away_score_short: "Yet to bat",
-      crr: 0,
-      rrr: 0,
+      home_score_short: "218/4 (20.0)",
+      away_score_short: "184/4 (17.0)",
+      crr: 10.82,
+      rrr: 11.67,
       win_probability_home: 52,
       dew_index: 84,
       par_score_projection: 218,
@@ -128,10 +131,10 @@ function buildPreSeasonFixtures(): NormalizedMatchFixture[] {
       is_day_match: true,
       status: "UPCOMING",
       status_note: "Afternoon Spin Deck • T-48h Radar Active",
-      home_score_short: "Yet to bat",
-      away_score_short: "Yet to bat",
-      crr: 0,
-      rrr: 0,
+      home_score_short: "174/6 (20.0)",
+      away_score_short: "132/5 (15.0)",
+      crr: 8.8,
+      rrr: 8.6,
       win_probability_home: 58,
       dew_index: 34,
       par_score_projection: 174,
@@ -161,7 +164,7 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
         extras_detail: "(b 1, lb 2, w 5, nb 1)",
         batters: [
           {
-            player_external_id: "mi-rohit",
+            player_external_id: "mi-rohit-sharma",
             player_name: "Rohit Sharma",
             short_name: "R. Sharma",
             dismissal_text: "c Jadeja b Pathirana",
@@ -175,7 +178,21 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
             is_out: true,
           },
           {
-            player_external_id: "mi-surya",
+            player_external_id: "mi-ryan-rickelton",
+            player_name: "Ryan Rickelton",
+            short_name: "R. Rickelton",
+            dismissal_text: "b Khaleel Ahmed",
+            runs: 22,
+            balls: 15,
+            fours: 3,
+            sixes: 1,
+            strike_rate: 146.67,
+            is_striker: false,
+            is_non_striker: false,
+            is_out: true,
+          },
+          {
+            player_external_id: "mi-suryakumar-yadav",
             player_name: "Suryakumar Yadav",
             short_name: "S. Yadav",
             dismissal_text: "not out",
@@ -189,7 +206,21 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
             is_out: false,
           },
           {
-            player_external_id: "mi-hardik",
+            player_external_id: "mi-tilak-varma",
+            player_name: "Tilak Varma",
+            short_name: "T. Varma",
+            dismissal_text: "b Pathirana",
+            runs: 6,
+            balls: 7,
+            fours: 1,
+            sixes: 0,
+            strike_rate: 85.71,
+            is_striker: false,
+            is_non_striker: false,
+            is_out: true,
+          },
+          {
+            player_external_id: "mi-hardik-pandya",
             player_name: "Hardik Pandya",
             short_name: "H. Pandya",
             dismissal_text: "not out",
@@ -205,21 +236,35 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
         ],
         bowlers: [
           {
-            player_external_id: "csk-pathirana",
-            player_name: "Matheesha Pathirana",
-            short_name: "M. Pathirana",
+            player_external_id: "csk-khaleel-ahmed",
+            player_name: "Khaleel Ahmed",
+            short_name: "K. Ahmed",
             overs: 4.0,
             maidens: 0,
-            runs_conceded: 32,
-            wickets: 2,
-            economy: 8.0,
-            dot_balls: 11,
-            wides: 2,
+            runs_conceded: 41,
+            wickets: 1,
+            economy: 10.25,
+            dot_balls: 9,
+            wides: 1,
             no_balls: 0,
-            is_current_bowler: true,
+            is_current_bowler: false,
           },
           {
-            player_external_id: "csk-jadeja",
+            player_external_id: "csk-ravichandran-ashwin",
+            player_name: "Ravichandran Ashwin",
+            short_name: "R. Ashwin",
+            overs: 4.0,
+            maidens: 0,
+            runs_conceded: 36,
+            wickets: 0,
+            economy: 9.0,
+            dot_balls: 7,
+            wides: 1,
+            no_balls: 0,
+            is_current_bowler: false,
+          },
+          {
+            player_external_id: "csk-ravindra-jadeja",
             player_name: "Ravindra Jadeja",
             short_name: "R. Jadeja",
             overs: 4.0,
@@ -232,8 +277,43 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
             no_balls: 0,
             is_current_bowler: false,
           },
+          {
+            player_external_id: "csk-noor-ahmad",
+            player_name: "Noor Ahmad",
+            short_name: "N. Ahmad",
+            overs: 4.0,
+            maidens: 0,
+            runs_conceded: 48,
+            wickets: 1,
+            economy: 12.0,
+            dot_balls: 6,
+            wides: 1,
+            no_balls: 0,
+            is_current_bowler: false,
+          },
+          {
+            player_external_id: "csk-matheesha-pathirana",
+            player_name: "Matheesha Pathirana",
+            short_name: "M. Pathirana",
+            overs: 4.0,
+            maidens: 0,
+            runs_conceded: 32,
+            wickets: 2,
+            economy: 8.0,
+            dot_balls: 11,
+            wides: 2,
+            no_balls: 1,
+            is_current_bowler: true,
+          },
         ],
-        did_not_bat: ["J. Bumrah", "T. Boult"],
+        did_not_bat: [
+          "Naman Dhir",
+          "Will Jacks",
+          "Mitchell Santner",
+          "Deepak Chahar",
+          "Trent Boult",
+          "Jasprit Bumrah",
+        ],
         recent_deliveries: [
           {
             ball_id: "19.1",
@@ -245,7 +325,8 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
             is_boundary_six: false,
             is_wicket: false,
             is_extra: false,
-            commentary_short: "Pathirana to Yadav, 1 run, yorker dug out to long-on",
+            commentary_short:
+              "Pathirana to Yadav, 1 run, yorker dug out to long-on",
           },
           {
             ball_id: "19.2",
@@ -257,7 +338,8 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
             is_boundary_six: true,
             is_wicket: false,
             is_extra: false,
-            commentary_short: "Pathirana to Pandya, SIX, launched over deep midwicket",
+            commentary_short:
+              "Pathirana to Pandya, SIX, launched over deep midwicket",
           },
           {
             ball_id: "19.3",
@@ -269,7 +351,8 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
             is_boundary_six: false,
             is_wicket: false,
             is_extra: false,
-            commentary_short: "Pathirana to Pandya, no run, slingy wide yorker",
+            commentary_short:
+              "Pathirana to Pandya, no run, slingy wide yorker",
           },
           {
             ball_id: "19.4",
@@ -281,7 +364,8 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
             is_boundary_six: false,
             is_wicket: false,
             is_extra: false,
-            commentary_short: "Pathirana to Pandya, FOUR, sliced past backward point",
+            commentary_short:
+              "Pathirana to Pandya, FOUR, sliced past backward point",
           },
           {
             ball_id: "19.5",
@@ -293,7 +377,8 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
             is_boundary_six: false,
             is_wicket: true,
             is_extra: false,
-            commentary_short: "Pathirana to Tilak, OUT, clean bowled at 149 kph",
+            commentary_short:
+              "Pathirana to Tilak, OUT, clean bowled at 149 kph",
           },
           {
             ball_id: "19.6",
@@ -305,7 +390,250 @@ function buildPreSeasonScorecard(matchId: string): NormalizedMatchScorecard {
             is_boundary_six: false,
             is_wicket: false,
             is_extra: false,
-            commentary_short: "Pathirana to Yadav, 2 runs, flicked into the gap at deep square",
+            commentary_short:
+              "Pathirana to Yadav, 2 runs, flicked into the gap at deep square",
+          },
+        ],
+      },
+      {
+        innings_number: 2,
+        batting_franchise: fixture.away_franchise,
+        bowling_franchise: fixture.home_franchise,
+        total_runs: 157,
+        total_wickets: 3,
+        overs_completed: 16.0,
+        extras_total: 6,
+        extras_detail: "(b 0, lb 2, w 4, nb 0)",
+        batters: [
+          {
+            player_external_id: "csk-ruturaj-gaikwad",
+            player_name: "Ruturaj Gaikwad",
+            short_name: "R. Gaikwad",
+            dismissal_text: "not out",
+            runs: 68,
+            balls: 44,
+            fours: 7,
+            sixes: 3,
+            strike_rate: 154.55,
+            is_striker: true,
+            is_non_striker: false,
+            is_out: false,
+          },
+          {
+            player_external_id: "csk-devon-conway",
+            player_name: "Devon Conway",
+            short_name: "D. Conway",
+            dismissal_text: "b Trent Boult",
+            runs: 14,
+            balls: 11,
+            fours: 2,
+            sixes: 0,
+            strike_rate: 127.27,
+            is_striker: false,
+            is_non_striker: false,
+            is_out: true,
+          },
+          {
+            player_external_id: "csk-rachin-ravindra",
+            player_name: "Rachin Ravindra",
+            short_name: "R. Ravindra",
+            dismissal_text: "c Rickelton b Bumrah",
+            runs: 27,
+            balls: 18,
+            fours: 3,
+            sixes: 1,
+            strike_rate: 150.0,
+            is_striker: false,
+            is_non_striker: false,
+            is_out: true,
+          },
+          {
+            player_external_id: "csk-shivam-dube",
+            player_name: "Shivam Dube",
+            short_name: "S. Dube",
+            dismissal_text: "c Suryakumar b Hardik Pandya",
+            runs: 24,
+            balls: 13,
+            fours: 1,
+            sixes: 2,
+            strike_rate: 184.62,
+            is_striker: false,
+            is_non_striker: false,
+            is_out: true,
+          },
+          {
+            player_external_id: "csk-ravindra-jadeja",
+            player_name: "Ravindra Jadeja",
+            short_name: "R. Jadeja",
+            dismissal_text: "not out",
+            runs: 18,
+            balls: 10,
+            fours: 2,
+            sixes: 1,
+            strike_rate: 180.0,
+            is_striker: false,
+            is_non_striker: true,
+            is_out: false,
+          },
+        ],
+        bowlers: [
+          {
+            player_external_id: "mi-trent-boult",
+            player_name: "Trent Boult",
+            short_name: "T. Boult",
+            overs: 4.0,
+            maidens: 0,
+            runs_conceded: 34,
+            wickets: 1,
+            economy: 8.5,
+            dot_balls: 10,
+            wides: 1,
+            no_balls: 0,
+            is_current_bowler: false,
+          },
+          {
+            player_external_id: "mi-deepak-chahar",
+            player_name: "Deepak Chahar",
+            short_name: "D. Chahar",
+            overs: 3.0,
+            maidens: 0,
+            runs_conceded: 33,
+            wickets: 0,
+            economy: 11.0,
+            dot_balls: 6,
+            wides: 1,
+            no_balls: 0,
+            is_current_bowler: false,
+          },
+          {
+            player_external_id: "mi-jasprit-bumrah",
+            player_name: "Jasprit Bumrah",
+            short_name: "J. Bumrah",
+            overs: 3.0,
+            maidens: 0,
+            runs_conceded: 19,
+            wickets: 1,
+            economy: 6.33,
+            dot_balls: 11,
+            wides: 0,
+            no_balls: 0,
+            is_current_bowler: true,
+          },
+          {
+            player_external_id: "mi-hardik-pandya",
+            player_name: "Hardik Pandya",
+            short_name: "H. Pandya",
+            overs: 3.0,
+            maidens: 0,
+            runs_conceded: 35,
+            wickets: 1,
+            economy: 11.67,
+            dot_balls: 5,
+            wides: 2,
+            no_balls: 0,
+            is_current_bowler: false,
+          },
+          {
+            player_external_id: "mi-mitchell-santner",
+            player_name: "Mitchell Santner",
+            short_name: "M. Santner",
+            overs: 3.0,
+            maidens: 0,
+            runs_conceded: 34,
+            wickets: 0,
+            economy: 11.33,
+            dot_balls: 5,
+            wides: 0,
+            no_balls: 0,
+            is_current_bowler: false,
+          },
+        ],
+        did_not_bat: [
+          "MS Dhoni",
+          "Sam Curran",
+          "Ravichandran Ashwin",
+          "Noor Ahmad",
+          "Matheesha Pathirana",
+          "Khaleel Ahmed",
+        ],
+        recent_deliveries: [
+          {
+            ball_id: "15.1",
+            over_number: 16,
+            ball_in_over: 1,
+            label: "0",
+            runs_scored: 0,
+            is_boundary_four: false,
+            is_boundary_six: false,
+            is_wicket: false,
+            is_extra: false,
+            commentary_short:
+              "Bumrah to Gaikwad, no run, pinpoint yorker on off stump",
+          },
+          {
+            ball_id: "15.2",
+            over_number: 16,
+            ball_in_over: 2,
+            label: "4",
+            runs_scored: 4,
+            is_boundary_four: true,
+            is_boundary_six: false,
+            is_wicket: false,
+            is_extra: false,
+            commentary_short:
+              "Bumrah to Gaikwad, FOUR, caressed through extra cover",
+          },
+          {
+            ball_id: "15.3",
+            over_number: 16,
+            ball_in_over: 3,
+            label: "1",
+            runs_scored: 1,
+            is_boundary_four: false,
+            is_boundary_six: false,
+            is_wicket: false,
+            is_extra: false,
+            commentary_short:
+              "Bumrah to Gaikwad, 1 run, tucked to fine leg",
+          },
+          {
+            ball_id: "15.4",
+            over_number: 16,
+            ball_in_over: 4,
+            label: "6",
+            runs_scored: 6,
+            is_boundary_four: false,
+            is_boundary_six: true,
+            is_wicket: false,
+            is_extra: false,
+            commentary_short:
+              "Bumrah to Jadeja, SIX, pulled flat over deep square leg",
+          },
+          {
+            ball_id: "15.5",
+            over_number: 16,
+            ball_in_over: 5,
+            label: "0",
+            runs_scored: 0,
+            is_boundary_four: false,
+            is_boundary_six: false,
+            is_wicket: false,
+            is_extra: false,
+            commentary_short:
+              "Bumrah to Jadeja, no run, slower bouncer beats the bat",
+          },
+          {
+            ball_id: "15.6",
+            over_number: 16,
+            ball_in_over: 6,
+            label: "1",
+            runs_scored: 1,
+            is_boundary_four: false,
+            is_boundary_six: false,
+            is_wicket: false,
+            is_extra: false,
+            commentary_short:
+              "Bumrah to Jadeja, 1 run, pushed down to long-off",
           },
         ],
       },
@@ -318,7 +646,7 @@ function buildPreSeasonSquadAndToss(
 ): NormalizedMatchSquadAndToss {
   const sampleSquad: SquadPlayerEntry[] = [
     {
-      external_player_id: "mi-rickelton",
+      external_player_id: "mi-ryan-rickelton",
       full_name: "Ryan Rickelton",
       short_name: "R. Rickelton",
       franchise_code: "MI",
@@ -330,7 +658,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "csk-dhoni",
+      external_player_id: "csk-ms-dhoni",
       full_name: "MS Dhoni",
       short_name: "MS Dhoni",
       franchise_code: "CSK",
@@ -342,7 +670,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "mi-rohit",
+      external_player_id: "mi-rohit-sharma",
       full_name: "Rohit Sharma",
       short_name: "R. Sharma",
       franchise_code: "MI",
@@ -354,7 +682,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "mi-surya",
+      external_player_id: "mi-suryakumar-yadav",
       full_name: "Suryakumar Yadav",
       short_name: "S. Yadav",
       franchise_code: "MI",
@@ -366,7 +694,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "csk-gaikwad",
+      external_player_id: "csk-ruturaj-gaikwad",
       full_name: "Ruturaj Gaikwad",
       short_name: "R. Gaikwad",
       franchise_code: "CSK",
@@ -378,7 +706,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "csk-dube",
+      external_player_id: "csk-shivam-dube",
       full_name: "Shivam Dube",
       short_name: "S. Dube",
       franchise_code: "CSK",
@@ -390,7 +718,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "mi-hardik",
+      external_player_id: "mi-hardik-pandya",
       full_name: "Hardik Pandya",
       short_name: "H. Pandya",
       franchise_code: "MI",
@@ -402,7 +730,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "csk-jadeja",
+      external_player_id: "csk-ravindra-jadeja",
       full_name: "Ravindra Jadeja",
       short_name: "R. Jadeja",
       franchise_code: "CSK",
@@ -414,7 +742,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "mi-bumrah",
+      external_player_id: "mi-jasprit-bumrah",
       full_name: "Jasprit Bumrah",
       short_name: "J. Bumrah",
       franchise_code: "MI",
@@ -426,7 +754,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "mi-boult",
+      external_player_id: "mi-trent-boult",
       full_name: "Trent Boult",
       short_name: "T. Boult",
       franchise_code: "MI",
@@ -438,7 +766,7 @@ function buildPreSeasonSquadAndToss(
       is_impact_sub: false,
     },
     {
-      external_player_id: "csk-pathirana",
+      external_player_id: "csk-matheesha-pathirana",
       full_name: "Matheesha Pathirana",
       short_name: "M. Pathirana",
       franchise_code: "CSK",
@@ -510,10 +838,17 @@ async function fetchWithTimeoutAndRetry(
   throw lastError ?? new Error("Cricket API request failed");
 }
 
-function mapExternalMatchStatus(rawStatus: unknown, matchStarted: unknown, matchEnded: unknown): MatchStatus {
+function mapExternalMatchStatus(
+  rawStatus: unknown,
+  matchStarted: unknown,
+  matchEnded: unknown
+): MatchStatus {
   if (matchEnded === true) return "COMPLETED";
   if (matchStarted === true) return "LIVE";
-  if (typeof rawStatus === "string" && rawStatus.toLowerCase().includes("toss")) {
+  if (
+    typeof rawStatus === "string" &&
+    rawStatus.toLowerCase().includes("toss")
+  ) {
     return "TOSS_COMPLETED";
   }
   return "UPCOMING";
@@ -589,7 +924,9 @@ export async function fetchUpcomingAndLiveMatches(): Promise<
             row.matchEnded
           ),
           status_note:
-            typeof row.status === "string" ? row.status : "Scheduled Fixture",
+            typeof row.status === "string"
+              ? row.status
+              : "Scheduled Fixture",
           home_score_short: "Live",
           away_score_short: "Live",
           crr: 9.2,
@@ -608,7 +945,8 @@ export async function fetchUpcomingAndLiveMatches(): Promise<
       data: normalized.length > 0 ? normalized : buildPreSeasonFixtures(),
     };
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown API error";
+    const message =
+      err instanceof Error ? err.message : "Unknown API error";
     return {
       ok: true,
       source: "PRE_SEASON_SIMULATION",
@@ -658,7 +996,8 @@ export async function fetchMatchScorecard(
       },
     };
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown API error";
+    const message =
+      err instanceof Error ? err.message : "Unknown API error";
     return {
       ok: true,
       source: "PRE_SEASON_SIMULATION",
@@ -701,7 +1040,9 @@ export async function fetchMatchSquadsAndToss(
     for (const teamBlock of rawSquads) {
       const teamObj = (teamBlock ?? {}) as Record<string, unknown>;
       const franchiseCode = normalizeFranchiseCode(teamObj.shortname, "MI");
-      const playersList = Array.isArray(teamObj.players) ? teamObj.players : [];
+      const playersList = Array.isArray(teamObj.players)
+        ? teamObj.players
+        : [];
 
       for (const rawPlayer of playersList) {
         const p = (rawPlayer ?? {}) as Record<string, unknown>;
@@ -760,7 +1101,8 @@ export async function fetchMatchSquadsAndToss(
       },
     };
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown API error";
+    const message =
+      err instanceof Error ? err.message : "Unknown API error";
     return {
       ok: true,
       source: "PRE_SEASON_SIMULATION",

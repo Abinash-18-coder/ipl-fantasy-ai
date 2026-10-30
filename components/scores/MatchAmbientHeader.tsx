@@ -21,6 +21,7 @@ import {
   FRANCHISE_THEME_REGISTRY,
 } from "@/lib/theme/franchiseTheme";
 import { RollingDigitTicker } from "@/components/scores/RollingDigitTicker";
+import { ScorecardTables } from "@/components/scores/ScorecardTables";
 import { Button } from "@/components/ui/button";
 import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -50,6 +51,10 @@ const ALL_FRANCHISE_CODES: readonly FranchiseCode[] = [
   "PBKS",
   "SRH",
 ];
+
+function clampWickets(val: number): number {
+  return Math.min(10, Math.max(0, val));
+}
 
 export function MatchAmbientHeader({
   initialFixtures,
@@ -129,7 +134,7 @@ export function MatchAmbientHeader({
 
     const nextBalls = chaseBallsBowled + 1;
     const nextRuns = chaseRuns + runsAdded;
-    const nextWickets = isWicketsClamp(chaseWickets + (isWicket ? 1 : 0));
+    const nextWickets = clampWickets(chaseWickets + (isWicket ? 1 : 0));
 
     setChaseBallsBowled(nextBalls);
     setChaseRuns(nextRuns);
@@ -138,7 +143,7 @@ export function MatchAmbientHeader({
     const newDelivery: BallDeliveryEvent = {
       ball_id: `sim-${Date.now()}`,
       over_number: Math.floor(nextBalls / 6) + 1,
-      ball_in_over: (nextBalls % 6) || 6,
+      ball_in_over: nextBalls % 6 || 6,
       label,
       runs_scored: runsAdded,
       is_boundary_four: label === "4",
@@ -151,21 +156,47 @@ export function MatchAmbientHeader({
     };
 
     setScorecard((prev) => {
-      const firstInn = prev.innings[0];
-      if (!firstInn) return prev;
-      const updatedDeliveries = [
-        ...firstInn.recent_deliveries.slice(-5),
-        newDelivery,
-      ];
+      const updatedInnings = prev.innings.map((inn) => {
+        const updatedDeliveries = [
+          ...inn.recent_deliveries.slice(-5),
+          newDelivery,
+        ];
+
+        if (inn.innings_number !== 2) {
+          return {
+            ...inn,
+            recent_deliveries: updatedDeliveries,
+          };
+        }
+
+        const updatedBatters = inn.batters.map((b) => {
+          if (!b.is_striker) return b;
+          const newBatterRuns = b.runs + runsAdded;
+          const newBatterBalls = b.balls + 1;
+          return {
+            ...b,
+            runs: newBatterRuns,
+            balls: newBatterBalls,
+            fours: b.fours + (label === "4" ? 1 : 0),
+            sixes: b.sixes + (label === "6" ? 1 : 0),
+            strike_rate: Number(
+              ((newBatterRuns / newBatterBalls) * 100).toFixed(2)
+            ),
+          };
+        });
+
+        return {
+          ...inn,
+          total_runs: nextRuns,
+          total_wickets: nextWickets,
+          batters: updatedBatters,
+          recent_deliveries: updatedDeliveries,
+        };
+      });
+
       return {
         ...prev,
-        innings: [
-          {
-            ...firstInn,
-            recent_deliveries: updatedDeliveries,
-          },
-          ...prev.innings.slice(1),
-        ],
+        innings: updatedInnings,
       };
     });
   };
@@ -246,11 +277,12 @@ export function MatchAmbientHeader({
     }
   };
 
-  const firstInnings = scorecard.innings[0];
-  const recentBalls = firstInnings?.recent_deliveries ?? [];
+  const activeInningsForStream =
+    scorecard.innings[1] ?? scorecard.innings[0];
+  const recentBalls = activeInningsForStream?.recent_deliveries ?? [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-ivory/10 pb-6">
         <div className="inline-flex items-center gap-1.5 rounded-sm bg-black/50 p-1.5 border border-ivory/12">
           {initialFixtures.map((item, idx) => {
@@ -328,7 +360,9 @@ export function MatchAmbientHeader({
                 {selectedFixture?.status ?? scorecard.fixture.status}
               </span>
               <span className="font-mono text-xs text-ivory-muted tabular-score">
-                Match {selectedFixture?.match_number ?? scorecard.fixture.match_number}{" "}
+                Match{" "}
+                {selectedFixture?.match_number ??
+                  scorecard.fixture.match_number}{" "}
                 &bull; {homeSpec.homeVenue}
               </span>
             </div>
@@ -338,7 +372,9 @@ export function MatchAmbientHeader({
                 <Droplets className="h-3.5 w-3.5 text-accent-gold" />
                 Dew Index:{" "}
                 <RollingDigitTicker
-                  value={selectedFixture?.dew_index ?? scorecard.fixture.dew_index}
+                  value={
+                    selectedFixture?.dew_index ?? scorecard.fixture.dew_index
+                  }
                   suffix="/100"
                 />
               </span>
@@ -541,6 +577,15 @@ export function MatchAmbientHeader({
         </motion.section>
       </AnimatePresence>
 
+      <ScorecardTables
+        inningsList={scorecard.innings}
+        overrideHomeCode={effectiveHomeCode}
+        overrideAwayCode={effectiveAwayCode}
+        liveChaseRuns={chaseRuns}
+        liveChaseWickets={chaseWickets}
+        liveChaseOvers={oversFormatted}
+      />
+
       <div className="rounded-sm glass-card p-6 border border-ivory/12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <p className="eyebrow-label text-accent-gold flex items-center gap-2">
@@ -593,8 +638,4 @@ export function MatchAmbientHeader({
       </div>
     </div>
   );
-}
-
-function isWicketsClamp(val: number): number {
-  return Math.min(10, Math.max(0, val));
 }
