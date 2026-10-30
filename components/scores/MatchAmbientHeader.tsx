@@ -6,12 +6,17 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Activity,
   ArrowUpRight,
+  Calendar,
+  Compass,
   Droplets,
   Flame,
   Gauge,
+  Layers,
+  Radio,
   RefreshCw,
   ShieldCheck,
   Sparkles,
+  Table2,
   TrendingUp,
   Zap,
 } from "lucide-react";
@@ -55,6 +60,34 @@ const ALL_FRANCHISE_CODES: readonly FranchiseCode[] = [
   "SRH",
 ];
 
+const MATCH_CENTER_SECTIONS = [
+  {
+    id: "section-pavilion",
+    label: "01. Floodlight Stage",
+    icon: Layers,
+  },
+  {
+    id: "section-overs",
+    label: "02. Over Tracker",
+    icon: Radio,
+  },
+  {
+    id: "section-probability",
+    label: "03. Win Pendulum & Feed",
+    icon: Compass,
+  },
+  {
+    id: "section-scorecards",
+    label: "04. Tabular Scorecards",
+    icon: Table2,
+  },
+  {
+    id: "section-schedule",
+    label: "05. 3-Day Horizon",
+    icon: Calendar,
+  },
+] as const;
+
 function clampWickets(val: number): number {
   return Math.min(10, Math.max(0, val));
 }
@@ -68,6 +101,8 @@ export function MatchAmbientHeader({
   const [activeExternalId, setActiveExternalId] = useState<string>(
     initialFixtures[0]?.external_match_id ?? "ipl-sim-match-42"
   );
+  const [activeSectionId, setActiveSectionId] =
+    useState<string>("section-pavilion");
   const [scorecard, setScorecard] =
     useState<NormalizedMatchScorecard>(initialScorecard);
   const [cacheStatus, setCacheStatus] =
@@ -100,6 +135,15 @@ export function MatchAmbientHeader({
   useEffect(() => {
     applyMatchAmbientLighting(effectiveHomeCode, effectiveAwayCode);
   }, [effectiveHomeCode, effectiveAwayCode]);
+
+  const handleJumpToSection = (sectionId: string) => {
+    setActiveSectionId(sectionId);
+    if (typeof document === "undefined") return;
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const oversFormatted = `${Math.floor(chaseBallsBowled / 6)}.${
     chaseBallsBowled % 6
@@ -300,7 +344,7 @@ export function MatchAmbientHeader({
   return (
     <div className="space-y-10">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-ivory/10 pb-6">
-        <div className="inline-flex items-center gap-1.5 rounded-sm bg-black/50 p-1.5 border border-ivory/12">
+        <div className="flex items-center gap-1.5 overflow-x-auto rounded-sm bg-black/50 p-1.5 border border-ivory/12">
           {initialFixtures.map((item, idx) => {
             const isSelected =
               item.external_match_id === activeExternalId;
@@ -310,7 +354,7 @@ export function MatchAmbientHeader({
                 type="button"
                 onClick={() => handleSelectFixtureTab(item, idx)}
                 className={cn(
-                  "relative px-4 py-2 text-[11px] uppercase tracking-[0.16em] transition-colors cursor-pointer z-10 tabular-score rounded-xs",
+                  "relative shrink-0 px-4 py-2 text-[11px] uppercase tracking-[0.16em] transition-colors cursor-pointer z-10 tabular-score rounded-xs",
                   isSelected
                     ? "text-stadium-navy font-bold"
                     : "text-ivory-muted hover:text-ivory"
@@ -352,277 +396,330 @@ export function MatchAmbientHeader({
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.section
-          key={`${effectiveHomeCode}-${effectiveAwayCode}`}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={SPRING_GENTLE}
-          style={{
-            background: stageBackground,
-            boxShadow: `0 28px 80px -16px ${homeSpec.primaryHex}24`,
-          }}
-          className="relative overflow-hidden rounded-sm border border-ivory/15 p-7 sm:p-10 lg:p-12"
-        >
-          <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-[2.5px]"
-            style={{ background: topHairline }}
-          />
-
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ivory/10 pb-5">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full bg-black/55 border border-accent-gold/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-accent-gold tabular-score">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent-gold animate-pulse-live" />
-                {selectedFixture?.status ?? scorecard.fixture.status}
-              </span>
-              <span className="font-mono text-xs text-ivory-muted tabular-score">
-                Match{" "}
-                {selectedFixture?.match_number ??
-                  scorecard.fixture.match_number}{" "}
-                &bull; {homeSpec.homeVenue}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-4 font-mono text-xs text-ivory-muted tabular-score">
-              <span className="flex items-center gap-1.5">
-                <Droplets className="h-3.5 w-3.5 text-accent-gold" />
-                Dew Index:{" "}
-                <RollingDigitTicker value={currentDewIndex} suffix="/100" />
-              </span>
-              <span>&bull;</span>
-              <span className="flex items-center gap-1.5 text-ivory">
-                <Flame className="h-3.5 w-3.5 text-accent-gold" />
-                Par {selectedFixture?.par_score_label ?? "198 – 206"}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-11 gap-8 items-center py-8">
-            <div className="lg:col-span-4 flex items-center gap-5">
-              <div
-                className="flex h-20 w-20 sm:h-24 sm:w-24 shrink-0 items-center justify-center rounded-full border-2 font-display text-2xl sm:text-3xl tracking-[0.14em] text-ivory shadow-glass-panel"
-                style={{
-                  borderColor: homeSpec.primaryHex,
-                  background: `radial-gradient(circle at 30% 30%, ${homeSpec.primaryHex}55 0%, ${homeSpec.secondaryHex}25 65%, #060809 100%)`,
-                }}
-              >
-                {homeSpec.code}
-              </div>
-
-              <div className="space-y-1">
-                <p
-                  className="font-mono text-[10px] uppercase tracking-[0.22em] font-semibold"
-                  style={{ color: homeSpec.primaryHex }}
-                >
-                  HOME FLOODLIGHT &bull; {homeSpec.shortCity}
-                </p>
-                <h2 className="font-display text-3xl sm:text-4xl text-ivory">
-                  {homeSpec.name}
-                </h2>
-                <div className="pt-1">
-                  <RollingDigitTicker
-                    value={`${targetRuns - 1}/5 (20.0)`}
-                    className="text-2xl sm:text-3xl text-ivory font-semibold"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-3 flex flex-col items-center justify-center text-center space-y-3 border-y lg:border-y-0 lg:border-x border-ivory/10 py-5 lg:py-0 px-2">
-              <div className="inline-flex items-center gap-2 rounded-sm bg-black/60 border border-ivory/15 px-3.5 py-1.5 shadow-inner">
-                <div className="flex items-center gap-1.5 text-xs font-mono">
-                  <TrendingUp className="h-3.5 w-3.5 text-[#8ec2a8]" />
-                  <span className="text-ivory-dim">CRR</span>
-                  <RollingDigitTicker
-                    value={computedCrr}
-                    className="text-ivory font-semibold"
-                  />
-                </div>
-
-                <span className="h-3.5 w-px bg-ivory/15 mx-1" />
-
-                <div className="flex items-center gap-1.5 text-xs font-mono">
-                  <Gauge className="h-3.5 w-3.5 text-accent-gold" />
-                  <span className="text-ivory-dim">RRR</span>
-                  <RollingDigitTicker
-                    value={computedRrr}
-                    className="text-accent-gold font-semibold"
-                  />
-                </div>
-              </div>
-
-              <span
+      <nav
+        aria-label="Match Center Telemetry Sections"
+        className="sticky top-20 z-30 rounded-sm bg-stadium-navy/85 backdrop-blur-xl border border-ivory/12 p-1.5 shadow-glass-panel flex items-center justify-between gap-2 overflow-x-auto"
+      >
+        <div className="flex items-center gap-1">
+          {MATCH_CENTER_SECTIONS.map((sec) => {
+            const Icon = sec.icon;
+            const isCurrent = activeSectionId === sec.id;
+            return (
+              <button
+                key={sec.id}
+                type="button"
+                onClick={() => handleJumpToSection(sec.id)}
                 className={cn(
-                  "rounded-full px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] border tabular-score",
-                  rrrMinusCrr > 1.5
-                    ? "bg-accent-crimson/20 border-accent-crimson/50 text-[#ffb4b4]"
-                    : rrrMinusCrr > 0
-                      ? "bg-accent-gold/15 border-accent-gold/40 text-accent-gold"
-                      : "bg-sage-turf/20 border-[#8ec2a8]/40 text-[#8ec2a8]"
+                  "relative shrink-0 inline-flex items-center gap-2 px-3.5 py-2 rounded-xs font-mono text-[10px] uppercase tracking-[0.16em] transition-colors cursor-pointer z-10",
+                  isCurrent
+                    ? "text-stadium-navy font-bold"
+                    : "text-ivory-muted hover:text-ivory"
                 )}
               >
-                {pressureState}
-              </span>
-
-              <p className="text-xs text-ivory-muted max-w-62.5 leading-relaxed">
-                {runsNeeded > 0 ? (
-                  <>
-                    {awaySpec.shortCity} need{" "}
-                    <RollingDigitTicker
-                      value={runsNeeded}
-                      className="text-ivory font-semibold"
-                    />{" "}
-                    runs in{" "}
-                    <RollingDigitTicker
-                      value={ballsRemaining}
-                      className="text-accent-gold font-semibold"
-                    />{" "}
-                    balls
-                  </>
-                ) : (
-                  <span className="text-[#8ec2a8] font-medium">
-                    Target achieved by {awaySpec.name}!
-                  </span>
+                {isCurrent && (
+                  <motion.span
+                    layoutId="match-center-jump-pill"
+                    transition={SPRING_SNAPPY}
+                    className="absolute inset-0 -z-10 rounded-xs bg-accent-gold"
+                  />
                 )}
-              </p>
+                <Icon className="h-3.5 w-3.5" />
+                <span>{sec.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <span className="hidden xl:inline-flex items-center gap-1.5 pr-3 font-mono text-[10px] text-ivory-dim uppercase tracking-widest shrink-0">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#8ec2a8]" />
+          Month 1 Release Verified
+        </span>
+      </nav>
+
+      <div id="section-pavilion" className="scroll-mt-28">
+        <AnimatePresence mode="wait">
+          <motion.section
+            key={`${effectiveHomeCode}-${effectiveAwayCode}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={SPRING_GENTLE}
+            style={{
+              background: stageBackground,
+              boxShadow: `0 28px 80px -16px ${homeSpec.primaryHex}24`,
+            }}
+            className="relative overflow-hidden rounded-sm border border-ivory/15 p-6 sm:p-10 lg:p-12"
+          >
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-[2.5px]"
+              style={{ background: topHairline }}
+            />
+
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ivory/10 pb-5">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center gap-2 rounded-full bg-black/55 border border-accent-gold/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-accent-gold tabular-score">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent-gold animate-pulse-live" />
+                  {selectedFixture?.status ?? scorecard.fixture.status}
+                </span>
+                <span className="font-mono text-xs text-ivory-muted tabular-score">
+                  Match{" "}
+                  {selectedFixture?.match_number ??
+                    scorecard.fixture.match_number}{" "}
+                  &bull; {homeSpec.homeVenue}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4 font-mono text-xs text-ivory-muted tabular-score">
+                <span className="flex items-center gap-1.5">
+                  <Droplets className="h-3.5 w-3.5 text-accent-gold" />
+                  Dew Index:{" "}
+                  <RollingDigitTicker
+                    value={currentDewIndex}
+                    suffix="/100"
+                  />
+                </span>
+                <span>&bull;</span>
+                <span className="flex items-center gap-1.5 text-ivory">
+                  <Flame className="h-3.5 w-3.5 text-accent-gold" />
+                  Par {selectedFixture?.par_score_label ?? "198 – 206"}
+                </span>
+              </div>
             </div>
 
-            <div className="lg:col-span-4 flex items-center justify-start lg:justify-end gap-5 lg:text-right">
-              <div className="space-y-1 order-2 lg:order-1">
-                <p
-                  className="font-mono text-[10px] uppercase tracking-[0.22em] font-semibold"
-                  style={{ color: awaySpec.primaryHex }}
+            <div className="grid grid-cols-1 lg:grid-cols-11 gap-8 items-center py-8">
+              <div className="lg:col-span-4 flex items-center gap-5">
+                <div
+                  className="flex h-20 w-20 sm:h-24 sm:w-24 shrink-0 items-center justify-center rounded-full border-2 font-display text-2xl sm:text-3xl tracking-[0.14em] text-ivory shadow-glass-panel"
+                  style={{
+                    borderColor: homeSpec.primaryHex,
+                    background: `radial-gradient(circle at 30% 30%, ${homeSpec.primaryHex}55 0%, ${homeSpec.secondaryHex}25 65%, #060809 100%)`,
+                  }}
                 >
-                  AWAY FLOODLIGHT &bull; {awaySpec.shortCity}
-                </p>
-                <h2 className="font-display text-3xl sm:text-4xl text-ivory">
-                  {awaySpec.name}
-                </h2>
-                <div className="pt-1 flex lg:justify-end">
-                  <RollingDigitTicker
-                    value={awayLiveScoreFormatted}
-                    className="text-2xl sm:text-3xl text-[#8ec2a8] font-semibold"
-                  />
+                  {homeSpec.code}
+                </div>
+
+                <div className="space-y-1">
+                  <p
+                    className="font-mono text-[10px] uppercase tracking-[0.22em] font-semibold"
+                    style={{ color: homeSpec.primaryHex }}
+                  >
+                    HOME FLOODLIGHT &bull; {homeSpec.shortCity}
+                  </p>
+                  <h2 className="font-display text-3xl sm:text-4xl text-ivory">
+                    {homeSpec.name}
+                  </h2>
+                  <div className="pt-1">
+                    <RollingDigitTicker
+                      value={`${targetRuns - 1}/5 (20.0)`}
+                      className="text-2xl sm:text-3xl text-ivory font-semibold"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div
-                className="order-1 lg:order-2 flex h-20 w-20 sm:h-24 sm:w-24 shrink-0 items-center justify-center rounded-full border-2 font-display text-2xl sm:text-3xl tracking-[0.14em] text-ivory shadow-glass-panel"
-                style={{
-                  borderColor: awaySpec.primaryHex,
-                  background: `radial-gradient(circle at 30% 30%, ${awaySpec.primaryHex}55 0%, ${awaySpec.secondaryHex}25 65%, #060809 100%)`,
-                }}
-              >
-                {awaySpec.code}
-              </div>
-            </div>
-          </div>
+              <div className="lg:col-span-3 flex flex-col items-center justify-center text-center space-y-3 border-y lg:border-y-0 lg:border-x border-ivory/10 py-5 lg:py-0 px-2">
+                <div className="inline-flex items-center gap-2 rounded-sm bg-black/60 border border-ivory/15 px-3.5 py-1.5 shadow-inner">
+                  <div className="flex items-center gap-1.5 text-xs font-mono">
+                    <TrendingUp className="h-3.5 w-3.5 text-[#8ec2a8]" />
+                    <span className="text-ivory-dim">CRR</span>
+                    <RollingDigitTicker
+                      value={computedCrr}
+                      className="text-ivory font-semibold"
+                    />
+                  </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-ivory/10 pt-5">
-            <div className="flex items-center gap-2 overflow-x-auto py-1">
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ivory-dim mr-2 shrink-0">
-                RECENT OVER STREAM:
-              </span>
-              {recentBalls.map((ball) => (
+                  <span className="h-3.5 w-px bg-ivory/15 mx-1" />
+
+                  <div className="flex items-center gap-1.5 text-xs font-mono">
+                    <Gauge className="h-3.5 w-3.5 text-accent-gold" />
+                    <span className="text-ivory-dim">RRR</span>
+                    <RollingDigitTicker
+                      value={computedRrr}
+                      className="text-accent-gold font-semibold"
+                    />
+                  </div>
+                </div>
+
                 <span
-                  key={ball.ball_id}
                   className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold tabular-score border",
-                    ball.is_wicket
-                      ? "bg-accent-crimson/25 border-accent-crimson text-[#ffb4b4]"
-                      : ball.is_boundary_six
-                        ? "bg-accent-gold/25 border-accent-gold text-accent-gold"
-                        : ball.is_boundary_four
-                          ? "bg-sage-turf/25 border-[#8ec2a8] text-[#8ec2a8]"
-                          : "bg-black/50 border-ivory/15 text-ivory-muted"
+                    "rounded-full px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] border tabular-score",
+                    rrrMinusCrr > 1.5
+                      ? "bg-accent-crimson/20 border-accent-crimson/50 text-[#ffb4b4]"
+                      : rrrMinusCrr > 0
+                        ? "bg-accent-gold/15 border-accent-gold/40 text-accent-gold"
+                        : "bg-sage-turf/20 border-[#8ec2a8]/40 text-[#8ec2a8]"
                   )}
                 >
-                  {ball.label}
+                  {pressureState}
                 </span>
-              ))}
+
+                <p className="text-xs text-ivory-muted max-w-62.5 leading-relaxed">
+                  {runsNeeded > 0 ? (
+                    <>
+                      {awaySpec.shortCity} need{" "}
+                      <RollingDigitTicker
+                        value={runsNeeded}
+                        className="text-ivory font-semibold"
+                      />{" "}
+                      runs in{" "}
+                      <RollingDigitTicker
+                        value={ballsRemaining}
+                        className="text-accent-gold font-semibold"
+                      />{" "}
+                      balls
+                    </>
+                  ) : (
+                    <span className="text-[#8ec2a8] font-medium">
+                      Target achieved by {awaySpec.name}!
+                    </span>
+                  )}
+                </p>
+              </div>
+
+              <div className="lg:col-span-4 flex items-center justify-start lg:justify-end gap-5 lg:text-right">
+                <div className="space-y-1 order-2 lg:order-1">
+                  <p
+                    className="font-mono text-[10px] uppercase tracking-[0.22em] font-semibold"
+                    style={{ color: awaySpec.primaryHex }}
+                  >
+                    AWAY FLOODLIGHT &bull; {awaySpec.shortCity}
+                  </p>
+                  <h2 className="font-display text-3xl sm:text-4xl text-ivory">
+                    {awaySpec.name}
+                  </h2>
+                  <div className="pt-1 flex lg:justify-end">
+                    <RollingDigitTicker
+                      value={awayLiveScoreFormatted}
+                      className="text-2xl sm:text-3xl text-[#8ec2a8] font-semibold"
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className="order-1 lg:order-2 flex h-20 w-20 sm:h-24 sm:w-24 shrink-0 items-center justify-center rounded-full border-2 font-display text-2xl sm:text-3xl tracking-[0.14em] text-ivory shadow-glass-panel"
+                  style={{
+                    borderColor: awaySpec.primaryHex,
+                    background: `radial-gradient(circle at 30% 30%, ${awaySpec.primaryHex}55 0%, ${awaySpec.secondaryHex}25 65%, #060809 100%)`,
+                  }}
+                >
+                  {awaySpec.code}
+                </div>
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ivory-dim flex items-center gap-1 mr-1">
-                <Zap className="h-3 w-3 text-accent-gold" />
-                Test Rolling Digits:
-              </span>
-              <button
-                type="button"
-                onClick={() => handleSimulateDelivery("1", 1, false)}
-                className="rounded-sm bg-black/55 hover:bg-ivory/10 border border-ivory/15 px-2.5 py-1 font-mono text-xs text-ivory cursor-pointer transition-colors"
-              >
-                +1 Run
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSimulateDelivery("4", 4, false)}
-                className="rounded-sm bg-sage-turf/20 hover:bg-sage-turf/35 border border-[#8ec2a8]/40 px-2.5 py-1 font-mono text-xs text-[#8ec2a8] cursor-pointer transition-colors"
-              >
-                +4 Boundary
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSimulateDelivery("6", 6, false)}
-                className="rounded-sm bg-accent-gold/20 hover:bg-accent-gold/35 border border-accent-gold/50 px-2.5 py-1 font-mono text-xs text-accent-gold cursor-pointer transition-colors"
-              >
-                +6 Maximum
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSimulateDelivery("W", 0, true)}
-                className="rounded-sm bg-accent-crimson/20 hover:bg-accent-crimson/35 border border-accent-crimson/50 px-2.5 py-1 font-mono text-xs text-[#ffb4b4] cursor-pointer transition-colors"
-              >
-                +Wicket
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-ivory/10 pt-5">
+              <div className="flex items-center gap-2 overflow-x-auto py-1">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ivory-dim mr-2 shrink-0">
+                  RECENT OVER STREAM:
+                </span>
+                {recentBalls.map((ball) => (
+                  <span
+                    key={ball.ball_id}
+                    className={cn(
+                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold tabular-score border",
+                      ball.is_wicket
+                        ? "bg-accent-crimson/25 border-accent-crimson text-[#ffb4b4]"
+                        : ball.is_boundary_six
+                          ? "bg-accent-gold/25 border-accent-gold text-accent-gold"
+                          : ball.is_boundary_four
+                            ? "bg-sage-turf/25 border-[#8ec2a8] text-[#8ec2a8]"
+                            : "bg-black/50 border-ivory/15 text-ivory-muted"
+                    )}
+                  >
+                    {ball.label}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ivory-dim flex items-center gap-1 mr-1">
+                  <Zap className="h-3 w-3 text-accent-gold" />
+                  Test Rolling Digits:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleSimulateDelivery("1", 1, false)}
+                  className="rounded-sm bg-black/55 hover:bg-ivory/10 border border-ivory/15 px-2.5 py-1 font-mono text-xs text-ivory cursor-pointer transition-colors"
+                >
+                  +1 Run
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSimulateDelivery("4", 4, false)}
+                  className="rounded-sm bg-sage-turf/20 hover:bg-sage-turf/35 border border-[#8ec2a8]/40 px-2.5 py-1 font-mono text-xs text-[#8ec2a8] cursor-pointer transition-colors"
+                >
+                  +4 Boundary
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSimulateDelivery("6", 6, false)}
+                  className="rounded-sm bg-accent-gold/20 hover:bg-accent-gold/35 border border-accent-gold/50 px-2.5 py-1 font-mono text-xs text-accent-gold cursor-pointer transition-colors"
+                >
+                  +6 Maximum
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSimulateDelivery("W", 0, true)}
+                  className="rounded-sm bg-accent-crimson/20 hover:bg-accent-crimson/35 border border-accent-crimson/50 px-2.5 py-1 font-mono text-xs text-[#ffb4b4] cursor-pointer transition-colors"
+                >
+                  +Wicket
+                </button>
+              </div>
+
+              <Button asChild variant="default" size="sm">
+                <Link href="/fantasy">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>OPEN 20-TEAM ARENA</span>
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
             </div>
+          </motion.section>
+        </AnimatePresence>
+      </div>
 
-            <Button asChild variant="default" size="sm">
-              <Link href="/fantasy">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>OPEN 20-TEAM ARENA</span>
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          </div>
-        </motion.section>
-      </AnimatePresence>
+      <div id="section-overs" className="scroll-mt-28">
+        <OverTrackerStrip
+          liveDeliveries={recentBalls}
+          currentOverNumber={Math.floor(chaseBallsBowled / 6) + 1}
+          currentBowlerName={currentBowler}
+          battingCode={effectiveAwayCode}
+          bowlingCode={effectiveHomeCode}
+        />
+      </div>
 
-      <OverTrackerStrip
-        liveDeliveries={recentBalls}
-        currentOverNumber={Math.floor(chaseBallsBowled / 6) + 1}
-        currentBowlerName={currentBowler}
-        battingCode={effectiveAwayCode}
-        bowlingCode={effectiveHomeCode}
-      />
+      <div id="section-probability" className="scroll-mt-28">
+        <WinProbabilityMeter
+          homeCode={effectiveHomeCode}
+          awayCode={effectiveAwayCode}
+          liveDeliveries={recentBalls}
+          runsNeeded={runsNeeded}
+          ballsRemaining={ballsRemaining}
+          wicketsLost={chaseWickets}
+          dewIndex={currentDewIndex}
+        />
+      </div>
 
-      <WinProbabilityMeter
-        homeCode={effectiveHomeCode}
-        awayCode={effectiveAwayCode}
-        liveDeliveries={recentBalls}
-        runsNeeded={runsNeeded}
-        ballsRemaining={ballsRemaining}
-        wicketsLost={chaseWickets}
-        dewIndex={currentDewIndex}
-      />
+      <div id="section-scorecards" className="scroll-mt-28">
+        <ScorecardTables
+          inningsList={scorecard.innings}
+          overrideHomeCode={effectiveHomeCode}
+          overrideAwayCode={effectiveAwayCode}
+          liveChaseRuns={chaseRuns}
+          liveChaseWickets={chaseWickets}
+          liveChaseOvers={oversFormatted}
+        />
+      </div>
 
-      <ScorecardTables
-        inningsList={scorecard.innings}
-        overrideHomeCode={effectiveHomeCode}
-        overrideAwayCode={effectiveAwayCode}
-        liveChaseRuns={chaseRuns}
-        liveChaseWickets={chaseWickets}
-        liveChaseOvers={oversFormatted}
-      />
-
-      <UpcomingScheduleCarousel
-        rollingFixtures={initialFixtures}
-        activeMatchId={activeExternalId}
-        onSelectFixture={(fixture, tabIdx) =>
-          handleSelectFixtureTab(fixture, tabIdx)
-        }
-      />
+      <div id="section-schedule" className="scroll-mt-28">
+        <UpcomingScheduleCarousel
+          rollingFixtures={initialFixtures}
+          activeMatchId={activeExternalId}
+          onSelectFixture={(fixture, tabIdx) =>
+            handleSelectFixtureTab(fixture, tabIdx)
+          }
+        />
+      </div>
 
       <div className="rounded-sm glass-card p-6 border border-ivory/12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
