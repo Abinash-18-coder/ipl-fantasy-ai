@@ -61,3 +61,10 @@ export type {
   RollingFixtureCardItem,
   RollingFixturesApiResponse,
 } from "./cricket";
+
+export type {
+  PlayerAnalyticsAggregatedRow,
+  FranchiseAnalyticsRollup,
+  AnalyticsSortField,
+  PlayerAnalyticsQueryResponse,
+} from "./analytics";
