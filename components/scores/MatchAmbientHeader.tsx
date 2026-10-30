@@ -21,6 +21,7 @@ import {
   FRANCHISE_THEME_REGISTRY,
 } from "@/lib/theme/franchiseTheme";
 import { RollingDigitTicker } from "@/components/scores/RollingDigitTicker";
+import { OverTrackerStrip } from "@/components/scores/OverTrackerStrip";
 import { ScorecardTables } from "@/components/scores/ScorecardTables";
 import { Button } from "@/components/ui/button";
 import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
@@ -151,8 +152,12 @@ export function MatchAmbientHeader({
       is_wicket: isWicket,
       is_extra: false,
       commentary_short: isWicket
-        ? "WICKET! Clean bowled on the yorker length!"
-        : `${runsAdded} run(s) added to the chase total`,
+        ? "WICKET! Clean bowled on the blockhole yorker!"
+        : label === "6"
+          ? "MAXIMUM! Launched high into the floodlit stands!"
+          : label === "4"
+            ? "FOUR! Threaded crisply through the extra-cover gap!"
+            : "1 run, nudged into the gap for a quick single.",
     };
 
     setScorecard((prev) => {
@@ -280,6 +285,9 @@ export function MatchAmbientHeader({
   const activeInningsForStream =
     scorecard.innings[1] ?? scorecard.innings[0];
   const recentBalls = activeInningsForStream?.recent_deliveries ?? [];
+  const currentBowler =
+    activeInningsForStream?.bowlers.find((b) => b.is_current_bowler)
+      ?.short_name ?? "J. Bumrah";
 
   return (
     <div className="space-y-10">
@@ -576,6 +584,14 @@ export function MatchAmbientHeader({
           </div>
         </motion.section>
       </AnimatePresence>
+
+      <OverTrackerStrip
+        liveDeliveries={recentBalls}
+        currentOverNumber={Math.floor(chaseBallsBowled / 6) + 1}
+        currentBowlerName={currentBowler}
+        battingCode={effectiveAwayCode}
+        bowlingCode={effectiveHomeCode}
+      />
 
       <ScorecardTables
         inningsList={scorecard.innings}
