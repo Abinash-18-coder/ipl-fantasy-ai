@@ -24,8 +24,11 @@ export interface PlayerAnalyticsAggregatedRow {
   career_stats_3yr: CareerStats3Yr;
   season_total_points: number;
   form_4m_avg: number;
+  avg_points_per_match: number;
   form_momentum_delta: number;
   points_per_credit: number;
+  boundary_pct: number;
+  death_overs_economy: number;
   career_3yr_matches: number;
   career_3yr_runs: number;
   career_3yr_wickets: number;
@@ -50,6 +53,8 @@ export interface FranchiseAnalyticsRollup {
 export type AnalyticsSortField =
   | "form_4m_avg"
   | "points_per_credit"
+  | "boundary_pct"
+  | "death_overs_economy"
   | "selection_pct"
   | "credits"
   | "career_3yr_runs"

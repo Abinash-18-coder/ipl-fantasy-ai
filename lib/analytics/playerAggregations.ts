@@ -340,6 +340,20 @@ function buildFallbackAggregatedData(): {
         ).toFixed(2)
       );
 
+      const boundaryPct = Number(
+        (item.role === "BOWL"
+          ? Math.min(42.0, Math.max(18.0, careerSr * 0.24))
+          : Math.min(74.5, Math.max(44.0, (careerSr - 95.0) * 0.92 + 18.0))
+        ).toFixed(2)
+      );
+
+      const deathOversEconomy = Number(
+        (item.role === "BOWL" || item.role === "ALL"
+          ? Math.max(6.8, careerEco + 0.85)
+          : 0
+        ).toFixed(2)
+      );
+
       const riskBucket: RiskBucket =
         item.selection_pct >= 65
           ? "Core"
@@ -368,8 +382,11 @@ function buildFallbackAggregatedData(): {
         career_stats_3yr: career,
         season_total_points: m1 + m2 + m3 + m4,
         form_4m_avg: form4mAvg,
+        avg_points_per_match: form4mAvg,
         form_momentum_delta: momentumDelta,
         points_per_credit: pointsPerCredit,
+        boundary_pct: boundaryPct,
+        death_overs_economy: deathOversEconomy,
         career_3yr_matches: careerMatches,
         career_3yr_runs: careerRuns,
         career_3yr_wickets: careerWickets,
@@ -452,7 +469,16 @@ function applyFiltersAndSorting(
   }
 
   const sortField: AnalyticsSortField = options.sortBy ?? "form_4m_avg";
-  filtered.sort((a, b) => Number(b[sortField]) - Number(a[sortField]));
+
+  if (sortField === "death_overs_economy") {
+    filtered.sort((a, b) => {
+      const aEco = a.death_overs_economy > 0 ? a.death_overs_economy : 99;
+      const bEco = b.death_overs_economy > 0 ? b.death_overs_economy : 99;
+      return aEco - bEco;
+    });
+  } else {
+    filtered.sort((a, b) => Number(b[sortField]) - Number(a[sortField]));
+  }
 
   if (typeof options.limit === "number" && options.limit > 0) {
     return filtered.slice(0, options.limit);
@@ -486,43 +512,68 @@ export async function getAggregatedPlayerAnalytics(
         playersViewRes.data.length > 0
       ) {
         const normalizedPlayers: PlayerAnalyticsAggregatedRow[] =
-          playersViewRes.data.map((row: Record<string, unknown>) => ({
-            id: String(row.id ?? ""),
-            external_api_id: String(row.external_api_id ?? ""),
-            full_name: String(row.full_name ?? ""),
-            short_name: String(row.short_name ?? ""),
-            franchise_id: String(row.franchise_id ?? ""),
-            franchise_code: (row.franchise_code as FranchiseCode) ?? "MI",
-            franchise_name: String(row.franchise_name ?? ""),
-            franchise_primary_hex: String(
-              row.franchise_primary_hex ?? "#c8b273"
-            ),
-            role: (row.role as PlayerRole) ?? "BAT",
-            credits: Number(row.credits ?? 8.0),
-            avatar_url: String(
-              row.avatar_url ?? "/avatars/player-silhouette.svg"
-            ),
-            is_overseas: Boolean(row.is_overseas),
-            is_uncapped_debutant: Boolean(row.is_uncapped_debutant),
-            selection_pct: Number(row.selection_pct ?? 0),
-            recent_form_points: Array.isArray(row.recent_form_points)
-              ? (row.recent_form_points as number[]).map((n) => Number(n))
-              : [60, 65, 70, 72],
-            career_stats_3yr: (row.career_stats_3yr ??
-              {}) as CareerStats3Yr,
-            season_total_points: Number(row.season_total_points ?? 0),
-            form_4m_avg: Number(row.form_4m_avg ?? 0),
-            form_momentum_delta: Number(row.form_momentum_delta ?? 0),
-            points_per_credit: Number(row.points_per_credit ?? 0),
-            career_3yr_matches: Number(row.career_3yr_matches ?? 0),
-            career_3yr_runs: Number(row.career_3yr_runs ?? 0),
-            career_3yr_wickets: Number(row.career_3yr_wickets ?? 0),
-            career_3yr_sr: Number(row.career_3yr_sr ?? 0),
-            career_3yr_economy: Number(row.career_3yr_economy ?? 0),
-            career_3yr_fantasy_avg: Number(row.career_3yr_fantasy_avg ?? 0),
-            recommended_risk_bucket:
-              (row.recommended_risk_bucket as RiskBucket) ?? "Form",
-          }));
+          playersViewRes.data.map((row: Record<string, unknown>) => {
+            const formAvg = Number(row.form_4m_avg ?? 0);
+            const roleVal = (row.role as PlayerRole) ?? "BAT";
+            const srVal = Number(row.career_3yr_sr ?? 140);
+            const ecoVal = Number(row.career_3yr_economy ?? 0);
+
+            return {
+              id: String(row.id ?? ""),
+              external_api_id: String(row.external_api_id ?? ""),
+              full_name: String(row.full_name ?? ""),
+              short_name: String(row.short_name ?? ""),
+              franchise_id: String(row.franchise_id ?? ""),
+              franchise_code:
+                (row.franchise_code as FranchiseCode) ?? "MI",
+              franchise_name: String(row.franchise_name ?? ""),
+              franchise_primary_hex: String(
+                row.franchise_primary_hex ?? "#c8b273"
+              ),
+              role: roleVal,
+              credits: Number(row.credits ?? 8.0),
+              avatar_url: String(
+                row.avatar_url ?? "/avatars/player-silhouette.svg"
+              ),
+              is_overseas: Boolean(row.is_overseas),
+              is_uncapped_debutant: Boolean(row.is_uncapped_debutant),
+              selection_pct: Number(row.selection_pct ?? 0),
+              recent_form_points: Array.isArray(row.recent_form_points)
+                ? (row.recent_form_points as number[]).map((n) => Number(n))
+                : [60, 65, 70, 72],
+              career_stats_3yr: (row.career_stats_3yr ??
+                {}) as CareerStats3Yr,
+              season_total_points: Number(row.season_total_points ?? 0),
+              form_4m_avg: formAvg,
+              avg_points_per_match: Number(
+                row.avg_points_per_match ?? formAvg
+              ),
+              form_momentum_delta: Number(row.form_momentum_delta ?? 0),
+              points_per_credit: Number(row.points_per_credit ?? 0),
+              boundary_pct: Number(
+                row.boundary_pct ??
+                  (roleVal === "BOWL"
+                    ? 28.4
+                    : Math.min(74.5, (srVal - 95) * 0.92 + 18))
+              ),
+              death_overs_economy: Number(
+                row.death_overs_economy ??
+                  (roleVal === "BOWL" || roleVal === "ALL"
+                    ? Math.max(6.8, ecoVal + 0.85)
+                    : 0)
+              ),
+              career_3yr_matches: Number(row.career_3yr_matches ?? 0),
+              career_3yr_runs: Number(row.career_3yr_runs ?? 0),
+              career_3yr_wickets: Number(row.career_3yr_wickets ?? 0),
+              career_3yr_sr: srVal,
+              career_3yr_economy: ecoVal,
+              career_3yr_fantasy_avg: Number(
+                row.career_3yr_fantasy_avg ?? 0
+              ),
+              recommended_risk_bucket:
+                (row.recommended_risk_bucket as RiskBucket) ?? "Form",
+            };
+          });
 
         const normalizedRollups: FranchiseAnalyticsRollup[] =
           Array.isArray(rollupsViewRes.data) &&

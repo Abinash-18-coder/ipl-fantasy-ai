@@ -1,3 +1,7 @@
+DROP MATERIALIZED VIEW IF EXISTS public.mv_player_aggregates;
+DROP VIEW IF EXISTS public.v_franchise_analytics_rollup;
+DROP VIEW IF EXISTS public.v_player_analytics_summary;
+
 CREATE OR REPLACE VIEW public.v_player_analytics_summary
 WITH (security_invoker = true)
 AS
@@ -81,12 +85,28 @@ SELECT
   ps.career_stats_3yr,
   ps.season_total_points,
   ROUND((ps.form_m1 + ps.form_m2 + ps.form_m3 + ps.form_m4) / 4.0, 2) AS form_4m_avg,
+  ROUND((ps.form_m1 + ps.form_m2 + ps.form_m3 + ps.form_m4) / 4.0, 2) AS avg_points_per_match,
   ROUND(ps.form_m4 - ps.form_m1, 2) AS form_momentum_delta,
   ROUND(
     ((ps.form_m1 + ps.form_m2 + ps.form_m3 + ps.form_m4) / 4.0)
     / NULLIF(ps.credits, 0),
     2
   ) AS points_per_credit,
+  ROUND(
+    CASE
+      WHEN ps.role = 'BOWL' THEN LEAST(42.0, GREATEST(18.0, ps.career_3yr_sr * 0.24))
+      ELSE LEAST(74.5, GREATEST(44.0, (ps.career_3yr_sr - 95.0) * 0.92 + 18.0))
+    END,
+    2
+  ) AS boundary_pct,
+  ROUND(
+    CASE
+      WHEN ps.role IN ('BOWL', 'ALL') AND ps.career_3yr_economy > 0
+        THEN GREATEST(6.80, ps.career_3yr_economy + 0.85)
+      ELSE 0.00
+    END,
+    2
+  ) AS death_overs_economy,
   ps.career_3yr_matches,
   ps.career_3yr_runs,
   ps.career_3yr_wickets,
@@ -100,6 +120,17 @@ SELECT
     ELSE 'Historic'
   END AS recommended_risk_bucket
 FROM parsed_stats ps;
+
+CREATE MATERIALIZED VIEW public.mv_player_aggregates
+AS
+SELECT *
+FROM public.v_player_analytics_summary;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_player_aggregates_id
+  ON public.mv_player_aggregates(id);
+
+CREATE INDEX IF NOT EXISTS idx_mv_player_aggregates_franchise_role
+  ON public.mv_player_aggregates(franchise_code, role);
 
 CREATE OR REPLACE VIEW public.v_franchise_analytics_rollup
 WITH (security_invoker = true)
@@ -119,4 +150,5 @@ GROUP BY v.franchise_code, v.franchise_name, v.franchise_primary_hex
 ORDER BY avg_squad_form_pts DESC;
 
 GRANT SELECT ON public.v_player_analytics_summary TO anon, authenticated;
+GRANT SELECT ON public.mv_player_aggregates TO anon, authenticated;
 GRANT SELECT ON public.v_franchise_analytics_rollup TO anon, authenticated;
