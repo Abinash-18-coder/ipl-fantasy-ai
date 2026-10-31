@@ -1,17 +1,44 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { clientEnv } from "@/lib/env";
+import { getClientEnv } from "@/lib/env";
 
-const PROTECTED_ROUTE_PREFIXES = ["/fantasy"];
+export const PROTECTED_ROUTE_PREFIXES = ["/fantasy", "/settings"] as const;
 
-export async function updateSessionAndGuardRoutes(request: NextRequest) {
+export const PUBLIC_SEO_ROUTE_PREFIXES = [
+  "/",
+  "/scores",
+  "/fixtures",
+  "/analytics",
+] as const;
+
+function isProtectedPath(pathname: string): boolean {
+  return PROTECTED_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
+export async function updateSessionAndGuardRoutes(
+  request: NextRequest
+): Promise<NextResponse> {
   let supabaseResponse = NextResponse.next({
     request,
   });
 
+  const env = getClientEnv();
+  const { pathname } = request.nextUrl;
+
+  const isPlaceholderSupabase =
+    env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder-project.supabase.co") ||
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY.includes("placeholder-anon-key");
+
+  if (isPlaceholderSupabase) {
+    supabaseResponse.headers.set("x-cricintel-route-guard", "dev-bypass");
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
-    clientEnv.NEXT_PUBLIC_SUPABASE_URL,
-    clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
@@ -36,22 +63,17 @@ export async function updateSessionAndGuardRoutes(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-
-  const isProtectedRoute = PROTECTED_ROUTE_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-  );
-
-  if (isProtectedRoute && !user) {
+  if (!user && isProtectedPath(pathname)) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/settings";
+    redirectUrl.pathname = "/";
+    redirectUrl.searchParams.set("authRequired", "true");
     redirectUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
   supabaseResponse.headers.set(
     "x-cricintel-route-tier",
-    isProtectedRoute ? "protected-arena" : "public-seo"
+    isProtectedPath(pathname) ? "protected-authenticated" : "public-seo"
   );
 
   return supabaseResponse;

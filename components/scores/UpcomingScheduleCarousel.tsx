@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import {
@@ -8,6 +8,7 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Droplets,
   Flame,
   Moon,
@@ -86,6 +87,40 @@ const EXTENDED_HORIZON_CARDS: readonly RollingFixtureCardItem[] = [
   },
 ];
 
+function formatCountdownString(
+  item: RollingFixtureCardItem,
+  nowMs: number | null
+): string {
+  if (item.status === "LIVE") {
+    return "LIVE IN PLAY • BALL-BY-BALL";
+  }
+  if (item.status === "COMPLETED") {
+    return "MATCH COMPLETED";
+  }
+  if (nowMs === null) {
+    return `T-MINUS ${item.day_offset * 24 + 6}H 00M`;
+  }
+
+  const parsedTargetMs = Date.parse(item.start_time_utc);
+  const fallbackTargetMs =
+    nowMs + (Math.max(1, item.day_offset) * 20 + 4) * 3600 * 1000;
+  const targetMs =
+    !Number.isNaN(parsedTargetMs) && parsedTargetMs > nowMs
+      ? parsedTargetMs
+      : fallbackTargetMs;
+
+  const diffSec = Math.max(0, Math.floor((targetMs - nowMs) / 1000));
+  const hours = Math.floor(diffSec / 3600);
+  const minutes = Math.floor((diffSec % 3600) / 60);
+  const seconds = diffSec % 60;
+
+  const hh = String(hours).padStart(2, "0");
+  const mm = String(minutes).padStart(2, "0");
+  const ss = String(seconds).padStart(2, "0");
+
+  return `STARTS IN ${hh}h ${mm}m ${ss}s`;
+}
+
 export function UpcomingScheduleCarousel({
   rollingFixtures,
   activeMatchId,
@@ -94,6 +129,22 @@ export function UpcomingScheduleCarousel({
   const [windowFilter, setWindowFilter] =
     useState<WindowFilter>("ALL_3_DAYS");
   const [startIndex, setStartIndex] = useState<number>(0);
+  const [nowMs, setNowMs] = useState<number | null>(null);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setNowMs(Date.now());
+    }, 0);
+
+    const intervalId = window.setInterval(() => {
+      setNowMs(Date.now());
+    }, 1000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   const combinedSchedule = useMemo<RollingFixtureCardItem[]>(() => {
     const existingIds = new Set(
@@ -137,7 +188,7 @@ export function UpcomingScheduleCarousel({
         <div className="space-y-1">
           <p className="eyebrow-label text-accent-gold flex items-center gap-2">
             <Calendar className="h-3.5 w-3.5" />
-            DYNAMIC T-3 DAY TOURNAMENT HORIZON &bull; AUTO-SYNCED
+            DYNAMIC T-3 DAY TOURNAMENT HORIZON &bull; IST COUNTDOWN
           </p>
           <h2 className="font-display text-2xl sm:text-3xl text-ivory font-normal">
             Upcoming 3-Day{" "}
@@ -226,6 +277,7 @@ export function UpcomingScheduleCarousel({
             (f) => f.external_match_id === item.external_match_id
           );
           const targetTabIndex = originalIdx >= 0 ? originalIdx : idx % 3;
+          const countdownText = formatCountdownString(item, nowMs);
 
           return (
             <motion.div
@@ -268,6 +320,14 @@ export function UpcomingScheduleCarousel({
                     )}
                     {item.time_ist_label}
                   </span>
+                </div>
+
+                <div className="flex items-center justify-between rounded-sm bg-black/60 border border-ivory/10 px-3 py-1.5 font-mono text-[10px] tabular-score">
+                  <span className="inline-flex items-center gap-1.5 text-accent-gold font-semibold">
+                    <Clock className="h-3 w-3 animate-pulse-live" />
+                    {countdownText}
+                  </span>
+                  <span className="text-ivory-dim">T-30m Swap Armed</span>
                 </div>
 
                 <div className="flex items-center justify-between py-1">
@@ -382,7 +442,7 @@ export function UpcomingScheduleCarousel({
                   className="inline-flex items-center gap-1 text-[#8ec2a8] hover:underline"
                 >
                   <Sparkles className="h-3 w-3" />
-                  <span>30 Teams</span>
+                  <span>Preview 20 Tickets</span>
                   <ArrowUpRight className="h-3 w-3" />
                 </Link>
               </div>

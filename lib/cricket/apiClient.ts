@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { getServerEnv } from "@/lib/env";
 import type {
   CricketApiEnvelope,
@@ -26,6 +27,41 @@ const VALID_FRANCHISE_CODES: readonly FranchiseCode[] = [
   "PBKS",
   "SRH",
 ];
+
+const ExternalTeamInfoSchema = z.object({
+  name: z.string().optional(),
+  shortname: z.string().optional(),
+});
+
+const ExternalMatchItemSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  status: z.string().optional(),
+  venue: z.string().optional(),
+  dateTimeGMT: z.string().optional(),
+  matchStarted: z.boolean().optional(),
+  matchEnded: z.boolean().optional(),
+  teamInfo: z.array(ExternalTeamInfoSchema).optional(),
+});
+
+const ExternalCurrentMatchesEnvelopeSchema = z.object({
+  data: z.array(ExternalMatchItemSchema).optional(),
+});
+
+const ExternalSquadPlayerSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  role: z.string().optional(),
+});
+
+const ExternalSquadBlockSchema = z.object({
+  shortname: z.string().optional(),
+  players: z.array(ExternalSquadPlayerSchema).optional(),
+});
+
+const ExternalMatchSquadEnvelopeSchema = z.object({
+  data: z.array(ExternalSquadBlockSchema).optional(),
+});
 
 function isPlaceholderApiKey(apiKey: string): boolean {
   return (
@@ -885,15 +921,13 @@ export async function fetchUpcomingAndLiveMatches(): Promise<
     )}&offset=0`;
 
     const payload = await fetchWithTimeoutAndRetry(endpoint);
-    const rawList = Array.isArray(payload.data) ? payload.data : [];
+    const parsed = ExternalCurrentMatchesEnvelopeSchema.safeParse(payload);
+    const rawList = parsed.success && parsed.data.data ? parsed.data.data : [];
 
     const normalized: NormalizedMatchFixture[] = rawList
       .slice(0, 10)
-      .map((item: unknown, idx: number) => {
-        const row = (item ?? {}) as Record<string, unknown>;
-        const teams = Array.isArray(row.teamInfo)
-          ? (row.teamInfo as Array<Record<string, unknown>>)
-          : [];
+      .map((row, idx: number) => {
+        const teams = row.teamInfo ?? [];
         const homeCode = normalizeFranchiseCode(teams[0]?.shortname, "MI");
         const awayCode = normalizeFranchiseCode(
           teams[1]?.shortname,
@@ -1034,18 +1068,15 @@ export async function fetchMatchSquadsAndToss(
     )}&id=${encodeURIComponent(matchId)}`;
 
     const payload = await fetchWithTimeoutAndRetry(endpoint);
-    const rawSquads = Array.isArray(payload.data) ? payload.data : [];
+    const parsed = ExternalMatchSquadEnvelopeSchema.safeParse(payload);
+    const rawSquads = parsed.success && parsed.data.data ? parsed.data.data : [];
     const parsedPlayers: SquadPlayerEntry[] = [];
 
-    for (const teamBlock of rawSquads) {
-      const teamObj = (teamBlock ?? {}) as Record<string, unknown>;
+    for (const teamObj of rawSquads) {
       const franchiseCode = normalizeFranchiseCode(teamObj.shortname, "MI");
-      const playersList = Array.isArray(teamObj.players)
-        ? teamObj.players
-        : [];
+      const playersList = teamObj.players ?? [];
 
-      for (const rawPlayer of playersList) {
-        const p = (rawPlayer ?? {}) as Record<string, unknown>;
+      for (const p of playersList) {
         const extId =
           typeof p.id === "string"
             ? p.id

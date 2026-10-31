@@ -15,6 +15,29 @@ export interface FormSparklineProps {
 
 const MATCH_LABELS = ["M-3", "M-2", "M-1", "LATEST"] as const;
 
+function getMatchPointTierColor(score: number): {
+  hex: string;
+  pillClass: string;
+} {
+  if (score > 50) {
+    return {
+      hex: "#8ec2a8",
+      pillClass: "bg-[#5b8c75]/20 border-[#8ec2a8]/45 text-[#8ec2a8]",
+    };
+  }
+  if (score >= 25) {
+    return {
+      hex: "#c8b273",
+      pillClass: "bg-accent-gold/15 border-accent-gold/40 text-accent-gold",
+    };
+  }
+  return {
+    hex: "#eb8f8f",
+    pillClass:
+      "bg-accent-crimson/20 border-accent-crimson/45 text-[#ffb4b4]",
+  };
+}
+
 export function FormSparkline({
   points,
   accentHex = "#c8b273",
@@ -49,11 +72,15 @@ export function FormSparkline({
     const x = padX + (idx / 3) * innerWidth;
     const normalizedY = (val - minVal) / span;
     const y = padY + innerHeight - normalizedY * innerHeight;
+    const tier = getMatchPointTierColor(val);
+
     return {
       x: Number(x.toFixed(1)),
       y: Number(y.toFixed(1)),
       val,
       label: MATCH_LABELS[idx] ?? `M${idx + 1}`,
+      nodeHex: tier.hex,
+      pillClass: tier.pillClass,
     };
   });
 
@@ -84,7 +111,12 @@ export function FormSparkline({
       <div className="flex items-center justify-between text-[10px] font-mono tabular-score">
         <span className="text-ivory-dim uppercase tracking-wider">
           {activeCoord?.label}:{" "}
-          <strong className="text-ivory">{activeCoord?.val} PTS</strong>
+          <strong
+            style={{ color: activeCoord?.nodeHex ?? "#f4f1ea" }}
+            className="font-bold"
+          >
+            {activeCoord?.val} PTS
+          </strong>
         </span>
 
         <span
@@ -122,7 +154,7 @@ export function FormSparkline({
             x2="0"
             y2="1"
           >
-            <stop offset="0%" stopColor={strokeColor} stopOpacity="0.34" />
+            <stop offset="0%" stopColor={strokeColor} stopOpacity="0.32" />
             <stop offset="100%" stopColor={strokeColor} stopOpacity="0.0" />
           </linearGradient>
         </defs>
@@ -159,19 +191,14 @@ export function FormSparkline({
               onMouseEnter={() => setHoveredIdx(idx)}
               onMouseLeave={() => setHoveredIdx(null)}
             >
+              <circle cx={pt.x} cy={pt.y} r={10} fill="transparent" />
               <circle
                 cx={pt.x}
                 cy={pt.y}
-                r={10}
-                fill="transparent"
-              />
-              <circle
-                cx={pt.x}
-                cy={pt.y}
-                r={isHovered || isLatest ? 3.6 : 2.5}
-                fill={isHovered || isLatest ? strokeColor : "#090b0c"}
-                stroke={strokeColor}
-                strokeWidth={isHovered || isLatest ? 2 : 1.5}
+                r={isHovered || isLatest ? 4.0 : 3.0}
+                fill={pt.nodeHex}
+                stroke="#060809"
+                strokeWidth={1.5}
               />
             </g>
           );
@@ -179,20 +206,19 @@ export function FormSparkline({
       </svg>
 
       {showLabels && (
-        <div className="flex items-center justify-between text-[9px] font-mono text-ivory-dim tabular-score">
-          {safePoints.map((score, i) => (
+        <div className="flex items-center justify-between text-[9px] font-mono tabular-score">
+          {coords.map((pt, i) => (
             <span
               key={`score-pill-${i}`}
               onMouseEnter={() => setHoveredIdx(i)}
               onMouseLeave={() => setHoveredIdx(null)}
               className={cn(
-                "px-1 py-0.5 rounded-xs transition-colors cursor-pointer",
-                hoveredIdx === i || i === 3
-                  ? "bg-ivory/10 text-ivory font-semibold"
-                  : "text-ivory-dim"
+                "px-1.5 py-0.5 rounded-xs border transition-transform cursor-pointer",
+                pt.pillClass,
+                (hoveredIdx === i || i === 3) && "scale-105 font-bold"
               )}
             >
-              {score}
+              {pt.val}
             </span>
           ))}
         </div>

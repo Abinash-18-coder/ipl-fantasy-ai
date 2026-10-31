@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Activity,
+  Award,
   Flame,
   MessageSquareText,
   Sparkles,
@@ -26,7 +27,12 @@ export interface WinProbabilityMeterProps {
   dewIndex: number;
 }
 
-type CommentaryFilter = "ALL" | "BOUNDARIES" | "WICKETS" | "HIGH_SWING";
+type CommentaryFilter =
+  | "ALL"
+  | "WICKETS"
+  | "BOUNDARIES"
+  | "MILESTONES"
+  | "HIGH_SWING";
 
 interface EnrichedCommentaryItem extends BallDeliveryEvent {
   winSwingPct: number;
@@ -34,6 +40,7 @@ interface EnrichedCommentaryItem extends BallDeliveryEvent {
   fantasyDeltaLabel: string;
   bowlerToBatter: string;
   tacticalNote: string;
+  milestoneTitle?: string;
 }
 
 const BASE_COMMENTARY_ARCHIVE: readonly BallDeliveryEvent[] = [
@@ -48,7 +55,7 @@ const BASE_COMMENTARY_ARCHIVE: readonly BallDeliveryEvent[] = [
     is_wicket: false,
     is_extra: false,
     commentary_short:
-      "Boult to Jadeja, FOUR! Short and wide outside off, Jadeja cuts fiercely backward of point for a boundary.",
+      "Boult to Gaikwad, FOUR! Brings up his sparkling HALF-CENTURY (50* off 32 balls) with a fierce cut past point!",
   },
   {
     ball_id: "14.5",
@@ -61,7 +68,7 @@ const BASE_COMMENTARY_ARCHIVE: readonly BallDeliveryEvent[] = [
     is_wicket: false,
     is_extra: false,
     commentary_short:
-      "Boult to Jadeja, 1 run, pinpoint yorker on middle stump, dug out cleanly down to long-on.",
+      "Boult to Gaikwad, 1 run, pinpoint yorker on middle stump, dug out cleanly down to long-on.",
   },
   {
     ball_id: "14.6",
@@ -74,7 +81,7 @@ const BASE_COMMENTARY_ARCHIVE: readonly BallDeliveryEvent[] = [
     is_wicket: false,
     is_extra: false,
     commentary_short:
-      "Boult to Gaikwad, 1 run, angled into the pads, clipped calmly to deep square leg to keep strike.",
+      "Boult to Jadeja, 1 run, angled into the pads, clipped calmly to deep square leg to keep strike.",
   },
 ];
 
@@ -139,15 +146,30 @@ export function WinProbabilityMeter({
 
     return combined
       .map((ball, index) => {
+        const prevBall = index > 0 ? combined[index - 1] : undefined;
+        const isConsecutiveBoundary =
+          (ball.is_boundary_four || ball.is_boundary_six) &&
+          Boolean(
+            prevBall?.is_boundary_four || prevBall?.is_boundary_six
+          );
+        const isConsecutiveWicket =
+          ball.is_wicket && Boolean(prevBall?.is_wicket);
+        const isHalfCenturyText = ball.commentary_short
+          .toLowerCase()
+          .includes("half-century");
+
         if (ball.is_wicket) {
           return {
             ...ball,
             winSwingPct: 8.4,
             favoredCode: homeCode,
-            fantasyDeltaLabel: "+25 Pts (Wicket)",
+            fantasyDeltaLabel: "+30 Pts (Wicket)",
             bowlerToBatter: `Delivery #${index + 1} • Breakthrough`,
             tacticalNote:
               "Seam movement off the pitch forces a false stroke; defending bowling side surges ahead.",
+            milestoneTitle: isConsecutiveWicket
+              ? "HAT-TRICK WATCH • DOUBLE STRIKE"
+              : "HIGH-IMPACT BREAKTHROUGH",
           };
         }
         if (ball.is_boundary_six) {
@@ -155,10 +177,13 @@ export function WinProbabilityMeter({
             ...ball,
             winSwingPct: 6.8,
             favoredCode: awayCode,
-            fantasyDeltaLabel: "+8 Pts (6 + Bonus)",
+            fantasyDeltaLabel: "+12 Pts (6 + Six Bonus)",
             bowlerToBatter: `Delivery #${index + 1} • Maximum`,
             tacticalNote:
               "Evening dew skids the ball into the hitting arc; required run rate drops sharply.",
+            milestoneTitle: isConsecutiveBoundary
+              ? "BOUNDARY BLITZ • BACK-TO-BACK FOURS/SIXES"
+              : "MAXIMUM • CROWD CATCH ZONE",
           };
         }
         if (ball.is_boundary_four) {
@@ -166,10 +191,17 @@ export function WinProbabilityMeter({
             ...ball,
             winSwingPct: 4.2,
             favoredCode: awayCode,
-            fantasyDeltaLabel: "+5 Pts (4 + Bonus)",
+            fantasyDeltaLabel: isHalfCenturyText
+              ? "+16 Pts (4 + 50* Bonus)"
+              : "+8 Pts (4 + Boundary Bonus)",
             bowlerToBatter: `Delivery #${index + 1} • Boundary`,
             tacticalNote:
               "Crisp placement pierces the 30-yard ring and releases dot-ball pressure.",
+            milestoneTitle: isHalfCenturyText
+              ? "BATTER MILESTONE • HALF-CENTURY (50*)"
+              : isConsecutiveBoundary
+                ? "BOUNDARY BLITZ • SURGING OVER"
+                : undefined,
           };
         }
         if (ball.runs_scored === 0) {
@@ -190,20 +222,25 @@ export function WinProbabilityMeter({
           fantasyDeltaLabel: `+${ball.runs_scored} Pt(s) (Run)`,
           bowlerToBatter: `Delivery #${index + 1} • Strike Rotation`,
           tacticalNote:
-            " Controlled wrist-work rotates the strike to keep the scoreboard ticking.",
+            "Controlled wrist-work rotates the strike to keep the scoreboard ticking.",
         };
       })
       .reverse();
   }, [liveDeliveries, homeCode, awayCode]);
 
   const filteredStream = useMemo(() => {
+    if (filter === "WICKETS") {
+      return enrichedCommentary.filter((item) => item.is_wicket);
+    }
     if (filter === "BOUNDARIES") {
       return enrichedCommentary.filter(
         (item) => item.is_boundary_four || item.is_boundary_six
       );
     }
-    if (filter === "WICKETS") {
-      return enrichedCommentary.filter((item) => item.is_wicket);
+    if (filter === "MILESTONES") {
+      return enrichedCommentary.filter((item) =>
+        Boolean(item.milestoneTitle)
+      );
     }
     if (filter === "HIGH_SWING") {
       return enrichedCommentary.filter((item) => item.winSwingPct >= 4.0);
@@ -252,7 +289,10 @@ export function WinProbabilityMeter({
                 {homeSpec.code} (DEFENDING)
               </span>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-ivory tabular-score">
-                <RollingDigitTicker value={homeWinPct.toFixed(1)} suffix="%" />
+                <RollingDigitTicker
+                  value={homeWinPct.toFixed(1)}
+                  suffix="%"
+                />
               </div>
             </div>
 
@@ -264,7 +304,10 @@ export function WinProbabilityMeter({
                 {awaySpec.code} (CHASING)
               </span>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-[#8ec2a8] tabular-score">
-                <RollingDigitTicker value={awayWinPct.toFixed(1)} suffix="%" />
+                <RollingDigitTicker
+                  value={awayWinPct.toFixed(1)}
+                  suffix="%"
+                />
               </div>
             </div>
           </div>
@@ -328,7 +371,10 @@ export function WinProbabilityMeter({
 
           <div className="flex items-center justify-between text-[10px] font-mono text-ivory-dim tabular-score border-t border-ivory/8 pt-2">
             <span>OV 10.0 (50/50 Split)</span>
-            <span>LIVE • OV {Math.floor((120 - ballsRemaining) / 6)}.{(120 - ballsRemaining) % 6}</span>
+            <span>
+              LIVE • OV {Math.floor((120 - ballsRemaining) / 6)}.
+              {(120 - ballsRemaining) % 6}
+            </span>
           </div>
         </div>
       </div>
@@ -338,7 +384,7 @@ export function WinProbabilityMeter({
           <div className="space-y-1">
             <p className="eyebrow-label text-accent-gold flex items-center gap-2">
               <MessageSquareText className="h-3.5 w-3.5" />
-              CHRONOLOGICAL BROADCAST FEED &bull; WIN-SHIFT TELEMETRY
+              CHRONOLOGICAL BROADCAST FEED &bull; MILESTONES &amp; SWINGS
             </p>
             <h2 className="font-display text-2xl sm:text-3xl text-ivory font-normal">
               Ball-by-Ball{" "}
@@ -346,13 +392,14 @@ export function WinProbabilityMeter({
             </h2>
           </div>
 
-          <div className="inline-flex items-center gap-1 rounded-sm bg-black/55 p-1 border border-ivory/12 self-start sm:self-auto">
+          <div className="inline-flex flex-wrap items-center gap-1 rounded-sm bg-black/55 p-1 border border-ivory/12 self-start sm:self-auto">
             {(
               [
                 { id: "ALL", label: "All" },
+                { id: "WICKETS", label: "Wickets Only" },
+                { id: "MILESTONES", label: "Milestones" },
                 { id: "BOUNDARIES", label: "4s & 6s" },
-                { id: "WICKETS", label: "Wickets" },
-                { id: "HIGH_SWING", label: "Swing >4%" },
+                { id: "HIGH_SWING", label: "Swing 4%+" },
               ] as const
             ).map((tab) => {
               const isSelected = filter === tab.id;
@@ -399,8 +446,20 @@ export function WinProbabilityMeter({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={SPRING_GENTLE}
-                    className="rounded-sm bg-black/45 border border-ivory/10 hover:border-ivory/25 p-4 transition-colors space-y-2.5"
+                    className={cn(
+                      "rounded-sm border p-4 transition-colors space-y-2.5",
+                      item.milestoneTitle
+                        ? "bg-accent-gold/6 border-accent-gold/40 shadow-turf-glow"
+                        : "bg-black/45 border-ivory/10 hover:border-ivory/25"
+                    )}
                   >
+                    {item.milestoneTitle && (
+                      <div className="inline-flex items-center gap-1.5 rounded-sm bg-accent-gold/20 border border-accent-gold/50 px-2.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-accent-gold">
+                        <Award className="h-3 w-3" />
+                        <span>{item.milestoneTitle}</span>
+                      </div>
+                    )}
+
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5">
                         <span className="rounded-sm bg-ivory/6 border border-ivory/12 px-2 py-0.5 font-mono text-xs font-semibold text-ivory tabular-score">
@@ -441,8 +500,8 @@ export function WinProbabilityMeter({
                           ) : (
                             <TrendingDown className="h-3 w-3" />
                           )}
-                          {item.favoredCode} +{item.winSwingPct.toFixed(1)}% Win
-                          Prob
+                          {item.favoredCode} +{item.winSwingPct.toFixed(1)}%
+                          Win Prob
                         </span>
 
                         <span className="inline-flex items-center gap-1 rounded-sm bg-ivory/4 border border-ivory/10 px-2 py-0.5 text-ivory-muted">
