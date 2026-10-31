@@ -5,10 +5,12 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Activity,
+  BarChart3,
   Search,
   Sparkles,
 } from "lucide-react";
 import { FormSparkline } from "@/components/analytics/FormSparkline";
+import { CareerTable } from "@/components/player/CareerTable";
 import { RollingDigitTicker } from "@/components/scores/RollingDigitTicker";
 import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -55,6 +57,8 @@ const SORT_OPTIONS: ReadonlyArray<{
   { id: "boundary_pct", label: "Boundary %" },
   { id: "death_overs_economy", label: "Death Overs Economy" },
   { id: "selection_pct", label: "Selection %" },
+  { id: "career_3yr_runs", label: "3-Yr Career Runs" },
+  { id: "career_3yr_wickets", label: "3-Yr Career Wickets" },
 ];
 
 function PlayerPortrait({
@@ -119,6 +123,10 @@ export function PlayerFormExplorer({
   const [sortBy, setSortBy] = useState<AnalyticsSortField>("form_4m_avg");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [visibleCount, setVisibleCount] = useState<number>(18);
+  const [selectedCareerPlayerId, setSelectedCareerPlayerId] =
+    useState<string>(
+      initialPlayers[0]?.external_api_id ?? "rcb-virat-kohli"
+    );
 
   const filteredAndSortedPlayers = useMemo(() => {
     let list = [...initialPlayers];
@@ -168,6 +176,32 @@ export function PlayerFormExplorer({
     sortBy,
     searchQuery,
   ]);
+
+  const activeCareerPlayer = useMemo(() => {
+    return (
+      initialPlayers.find(
+        (p) => p.external_api_id === selectedCareerPlayerId
+      ) ??
+      filteredAndSortedPlayers[0] ??
+      initialPlayers[0]
+    );
+  }, [
+    initialPlayers,
+    filteredAndSortedPlayers,
+    selectedCareerPlayerId,
+  ]);
+
+  const handleInspectPlayerCareer = (
+    player: PlayerAnalyticsAggregatedRow
+  ) => {
+    setSelectedCareerPlayerId(player.external_api_id);
+    if (typeof document !== "undefined") {
+      const section = document.getElementById("career-history-anchor");
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
 
   const displayedPlayers = filteredAndSortedPlayers.slice(0, visibleCount);
 
@@ -268,6 +302,18 @@ export function PlayerFormExplorer({
         </div>
       </section>
 
+      {activeCareerPlayer && (
+        <div id="career-history-anchor" className="scroll-mt-28">
+          <CareerTable
+            player={activeCareerPlayer}
+            featuredPlayers={filteredAndSortedPlayers}
+            onSelectPlayer={(p) =>
+              setSelectedCareerPlayerId(p.external_api_id)
+            }
+          />
+        </div>
+      )}
+
       <section className="rounded-sm glass-card border border-ivory/15 p-5 sm:p-6 shadow-glass-panel space-y-5">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
           <div className="lg:col-span-4 relative">
@@ -361,130 +407,159 @@ export function PlayerFormExplorer({
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <AnimatePresence mode="popLayout">
-          {displayedPlayers.map((player) => (
-            <motion.article
-              key={player.external_api_id}
-              layout
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={SPRING_GENTLE}
-              className="rounded-sm glass-card border border-ivory/15 hover:border-ivory/30 p-6 shadow-glass-panel flex flex-col justify-between space-y-5 relative overflow-hidden"
-            >
-              <div
-                className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
-                style={{
-                  background: `linear-gradient(90deg, ${player.franchise_primary_hex} 0%, #c8b273 60%, transparent 100%)`,
-                }}
-              />
+          {displayedPlayers.map((player) => {
+            const isInspectingCareer =
+              activeCareerPlayer?.external_api_id ===
+              player.external_api_id;
 
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3.5">
-                  <PlayerPortrait
-                    key={player.external_api_id}
-                    avatarUrl={player.avatar_url}
-                    fullName={player.full_name}
-                    primaryHex={player.franchise_primary_hex}
+            return (
+              <motion.article
+                key={player.external_api_id}
+                layout
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={SPRING_GENTLE}
+                className={cn(
+                  "rounded-sm glass-card border p-6 shadow-glass-panel flex flex-col justify-between space-y-5 relative overflow-hidden transition-colors",
+                  isInspectingCareer
+                    ? "border-accent-gold bg-accent-gold/3"
+                    : "border-ivory/15 hover:border-ivory/30"
+                )}
+              >
+                <div
+                  className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
+                  style={{
+                    background: `linear-gradient(90deg, ${player.franchise_primary_hex} 0%, #c8b273 60%, transparent 100%)`,
+                  }}
+                />
+
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3.5">
+                    <PlayerPortrait
+                      key={player.external_api_id}
+                      avatarUrl={player.avatar_url}
+                      fullName={player.full_name}
+                      primaryHex={player.franchise_primary_hex}
+                    />
+
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="font-mono text-[10px] font-bold uppercase tracking-widest"
+                          style={{ color: player.franchise_primary_hex }}
+                        >
+                          {player.franchise_code}
+                        </span>
+                        <span className="text-ivory-dim">&bull;</span>
+                        <span className="font-mono text-[10px] text-accent-gold uppercase tracking-wider">
+                          {player.role}
+                        </span>
+                        <span className="text-ivory-dim">&bull;</span>
+                        <span className="font-mono text-[10px] text-ivory-muted tabular-score">
+                          {player.credits.toFixed(1)} Cr
+                        </span>
+                      </div>
+
+                      <h3 className="font-display text-2xl text-ivory leading-tight">
+                        {player.full_name}
+                      </h3>
+
+                      <div className="flex items-center gap-2 font-mono text-[10px] text-ivory-dim tabular-score">
+                        <span>Sel {player.selection_pct.toFixed(1)}%</span>
+                        {player.is_overseas && (
+                          <span className="rounded-sm bg-ivory/6 px-1.5 py-0.2 text-ivory-muted">
+                            OS
+                          </span>
+                        )}
+                        {player.is_uncapped_debutant && (
+                          <span className="rounded-sm bg-accent-gold/15 px-1.5 py-0.2 text-accent-gold">
+                            UNCAPPED
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-widest border shrink-0",
+                      getBucketBadgeStyle(player.recommended_risk_bucket)
+                    )}
+                  >
+                    {player.recommended_risk_bucket}
+                  </span>
+                </div>
+
+                <div className="rounded-sm bg-black/50 border border-ivory/10 p-3.5">
+                  <FormSparkline
+                    points={player.recent_form_points}
+                    accentHex={player.franchise_primary_hex}
                   />
+                </div>
 
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="font-mono text-[10px] font-bold uppercase tracking-widest"
-                        style={{ color: player.franchise_primary_hex }}
-                      >
-                        {player.franchise_code}
-                      </span>
-                      <span className="text-ivory-dim">&bull;</span>
-                      <span className="font-mono text-[10px] text-accent-gold uppercase tracking-wider">
-                        {player.role}
-                      </span>
-                      <span className="text-ivory-dim">&bull;</span>
-                      <span className="font-mono text-[10px] text-ivory-muted tabular-score">
-                        {player.credits.toFixed(1)} Cr
-                      </span>
-                    </div>
+                <div className="grid grid-cols-4 gap-2 pt-1 font-mono tabular-score text-center">
+                  <div className="rounded-sm bg-ivory/3 border border-ivory/8 p-2">
+                    <span className="block text-[9px] text-ivory-dim uppercase">
+                      4M AVG
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-ivory">
+                      {player.form_4m_avg.toFixed(1)}
+                    </span>
+                  </div>
 
-                    <h3 className="font-display text-2xl text-ivory leading-tight">
-                      {player.full_name}
-                    </h3>
+                  <div className="rounded-sm bg-ivory/3 border border-ivory/8 p-2">
+                    <span className="block text-[9px] text-ivory-dim uppercase">
+                      ROI/CR
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-[#8ec2a8]">
+                      {player.points_per_credit.toFixed(1)}
+                    </span>
+                  </div>
 
-                    <div className="flex items-center gap-2 font-mono text-[10px] text-ivory-dim tabular-score">
-                      <span>Sel {player.selection_pct.toFixed(1)}%</span>
-                      {player.is_overseas && (
-                        <span className="rounded-sm bg-ivory/6 px-1.5 py-0.2 text-ivory-muted">
-                          OS
-                        </span>
-                      )}
-                      {player.is_uncapped_debutant && (
-                        <span className="rounded-sm bg-accent-gold/15 px-1.5 py-0.2 text-accent-gold">
-                          UNCAPPED
-                        </span>
-                      )}
-                    </div>
+                  <div className="rounded-sm bg-ivory/3 border border-ivory/8 p-2">
+                    <span className="block text-[9px] text-ivory-dim uppercase">
+                      BND %
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-accent-gold">
+                      {player.boundary_pct.toFixed(1)}%
+                    </span>
+                  </div>
+
+                  <div className="rounded-sm bg-ivory/3 border border-ivory/8 p-2">
+                    <span className="block text-[9px] text-ivory-dim uppercase">
+                      {player.death_overs_economy > 0
+                        ? "DEATH ECO"
+                        : "3Y RUNS"}
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-ivory">
+                      {player.death_overs_economy > 0
+                        ? player.death_overs_economy.toFixed(2)
+                        : player.career_3yr_runs}
+                    </span>
                   </div>
                 </div>
 
-                <span
+                <button
+                  type="button"
+                  onClick={() => handleInspectPlayerCareer(player)}
                   className={cn(
-                    "rounded-full px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-widest border shrink-0",
-                    getBucketBadgeStyle(player.recommended_risk_bucket)
+                    "w-full rounded-sm py-2 px-3 border font-mono text-[10px] uppercase tracking-[0.16em] transition-all cursor-pointer flex items-center justify-center gap-2",
+                    isInspectingCareer
+                      ? "bg-accent-gold text-stadium-navy border-accent-gold font-bold"
+                      : "bg-black/45 hover:bg-ivory/6 border-ivory/12 text-ivory-muted hover:text-ivory"
                   )}
                 >
-                  {player.recommended_risk_bucket}
-                </span>
-              </div>
-
-              <div className="rounded-sm bg-black/50 border border-ivory/10 p-3.5">
-                <FormSparkline
-                  points={player.recent_form_points}
-                  accentHex={player.franchise_primary_hex}
-                />
-              </div>
-
-              <div className="grid grid-cols-4 gap-2 pt-1 font-mono tabular-score text-center">
-                <div className="rounded-sm bg-ivory/3 border border-ivory/8 p-2">
-                  <span className="block text-[9px] text-ivory-dim uppercase">
-                    4M AVG
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  <span>
+                    {isInspectingCareer
+                      ? "Viewing in 3-Yr Career Table Above"
+                      : "Inspect 3-Yr IPL Career Table"}
                   </span>
-                  <span className="text-xs sm:text-sm font-bold text-ivory">
-                    {player.form_4m_avg.toFixed(1)}
-                  </span>
-                </div>
-
-                <div className="rounded-sm bg-ivory/3 border border-ivory/8 p-2">
-                  <span className="block text-[9px] text-ivory-dim uppercase">
-                    ROI/CR
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold text-[#8ec2a8]">
-                    {player.points_per_credit.toFixed(1)}
-                  </span>
-                </div>
-
-                <div className="rounded-sm bg-ivory/3 border border-ivory/8 p-2">
-                  <span className="block text-[9px] text-ivory-dim uppercase">
-                    BND %
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold text-accent-gold">
-                    {player.boundary_pct.toFixed(1)}%
-                  </span>
-                </div>
-
-                <div className="rounded-sm bg-ivory/3 border border-ivory/8 p-2">
-                  <span className="block text-[9px] text-ivory-dim uppercase">
-                    {player.death_overs_economy > 0
-                      ? "DEATH ECO"
-                      : "3Y RUNS"}
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold text-ivory">
-                    {player.death_overs_economy > 0
-                      ? player.death_overs_economy.toFixed(2)
-                      : player.career_3yr_runs}
-                  </span>
-                </div>
-              </div>
-            </motion.article>
-          ))}
+                </button>
+              </motion.article>
+            );
+          })}
         </AnimatePresence>
       </div>
 
