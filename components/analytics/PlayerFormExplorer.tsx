@@ -6,11 +6,13 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Activity,
   BarChart3,
+  PanelRightOpen,
   Search,
   Sparkles,
 } from "lucide-react";
 import { FormSparkline } from "@/components/analytics/FormSparkline";
 import { CareerTable } from "@/components/player/CareerTable";
+import { PlayerDetailDrawer } from "@/components/player/PlayerDetailDrawer";
 import { RollingDigitTicker } from "@/components/scores/RollingDigitTicker";
 import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -65,16 +67,21 @@ function PlayerPortrait({
   avatarUrl,
   fullName,
   primaryHex,
+  onClick,
 }: {
   avatarUrl: string;
   fullName: string;
   primaryHex: string;
+  onClick?: () => void;
 }) {
   const [src, setSrc] = useState<string>(avatarUrl);
 
   return (
-    <div
-      className="relative h-14 w-14 shrink-0 rounded-full p-[1.5px]"
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Open detail drawer for ${fullName}`}
+      className="relative h-14 w-14 shrink-0 rounded-full p-[1.5px] transition-transform hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent-gold"
       style={{
         background: `linear-gradient(135deg, ${primaryHex} 0%, #c8b273 100%)`,
       }}
@@ -88,7 +95,7 @@ function PlayerPortrait({
         onError={() => setSrc("/avatars/player-silhouette.svg")}
         className="h-full w-full rounded-full bg-stadium-navy object-cover"
       />
-    </div>
+    </button>
   );
 }
 
@@ -127,6 +134,8 @@ export function PlayerFormExplorer({
     useState<string>(
       initialPlayers[0]?.external_api_id ?? "rcb-virat-kohli"
     );
+  const [drawerPlayer, setDrawerPlayer] =
+    useState<PlayerAnalyticsAggregatedRow | null>(null);
 
   const filteredAndSortedPlayers = useMemo(() => {
     let list = [...initialPlayers];
@@ -207,6 +216,11 @@ export function PlayerFormExplorer({
 
   return (
     <div className="space-y-10">
+      <PlayerDetailDrawer
+        player={drawerPlayer}
+        onClose={() => setDrawerPlayer(null)}
+      />
+
       <section className="rounded-sm glass-card border border-ivory/15 p-6 sm:p-8 shadow-glass-panel space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ivory/10 pb-4">
           <div className="space-y-1">
@@ -441,6 +455,7 @@ export function PlayerFormExplorer({
                       avatarUrl={player.avatar_url}
                       fullName={player.full_name}
                       primaryHex={player.franchise_primary_hex}
+                      onClick={() => setDrawerPlayer(player)}
                     />
 
                     <div className="space-y-1">
@@ -461,9 +476,13 @@ export function PlayerFormExplorer({
                         </span>
                       </div>
 
-                      <h3 className="font-display text-2xl text-ivory leading-tight">
+                      <button
+                        type="button"
+                        onClick={() => setDrawerPlayer(player)}
+                        className="font-display text-2xl text-ivory hover:text-accent-gold transition-colors leading-tight text-left cursor-pointer"
+                      >
                         {player.full_name}
-                      </h3>
+                      </button>
 
                       <div className="flex items-center gap-2 font-mono text-[10px] text-ivory-dim tabular-score">
                         <span>Sel {player.selection_pct.toFixed(1)}%</span>
@@ -540,23 +559,32 @@ export function PlayerFormExplorer({
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleInspectPlayerCareer(player)}
-                  className={cn(
-                    "w-full rounded-sm py-2 px-3 border font-mono text-[10px] uppercase tracking-[0.16em] transition-all cursor-pointer flex items-center justify-center gap-2",
-                    isInspectingCareer
-                      ? "bg-accent-gold text-stadium-navy border-accent-gold font-bold"
-                      : "bg-black/45 hover:bg-ivory/6 border-ivory/12 text-ivory-muted hover:text-ivory"
-                  )}
-                >
-                  <BarChart3 className="h-3.5 w-3.5" />
-                  <span>
-                    {isInspectingCareer
-                      ? "Viewing in 3-Yr Career Table Above"
-                      : "Inspect 3-Yr IPL Career Table"}
-                  </span>
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDrawerPlayer(player)}
+                    className="rounded-sm py-2 px-2.5 border bg-accent-gold/15 hover:bg-accent-gold/25 border-accent-gold/45 text-accent-gold font-mono text-[10px] uppercase tracking-[0.14em] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <PanelRightOpen className="h-3.5 w-3.5" />
+                    <span>Slide-Over Sheet</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleInspectPlayerCareer(player)}
+                    className={cn(
+                      "rounded-sm py-2 px-2.5 border font-mono text-[10px] uppercase tracking-[0.14em] transition-all cursor-pointer flex items-center justify-center gap-1.5",
+                      isInspectingCareer
+                        ? "bg-accent-gold text-stadium-navy border-accent-gold font-bold"
+                        : "bg-black/45 hover:bg-ivory/6 border-ivory/12 text-ivory-muted hover:text-ivory"
+                    )}
+                  >
+                    <BarChart3 className="h-3.5 w-3.5" />
+                    <span>
+                      {isInspectingCareer ? "In Table" : "Career Table"}
+                    </span>
+                  </button>
+                </div>
               </motion.article>
             );
           })}
