@@ -13,7 +13,9 @@ export async function GET(request: NextRequest) {
   const franchise = (searchParams.get("franchise") ?? "ALL") as
     | FranchiseCode
     | "ALL";
-  const role = (searchParams.get("role") ?? "ALL") as PlayerRole | "ALL";
+  const role = (searchParams.get("role") ?? "ALL_ROLES") as
+    | PlayerRole
+    | "ALL_ROLES";
   const riskBucket = (searchParams.get("riskBucket") ?? "ALL") as
     | RiskBucket
     | "ALL";

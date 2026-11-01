@@ -6,14 +6,21 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Activity,
   BarChart3,
+  Crosshair,
+  Flame,
   PanelRightOpen,
   Search,
   Sparkles,
+  Zap,
 } from "lucide-react";
 import { FormSparkline } from "@/components/analytics/FormSparkline";
 import { CareerTable } from "@/components/player/CareerTable";
 import { PlayerDetailDrawer } from "@/components/player/PlayerDetailDrawer";
 import { RollingDigitTicker } from "@/components/scores/RollingDigitTicker";
+import {
+  classifyPlayerPuntProfile,
+  summarizeSquadDifferentials,
+} from "@/lib/analytics/playerPuntClassifier";
 import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type {
@@ -31,8 +38,17 @@ export interface PlayerFormExplorerProps {
   dataSource: "POSTGRES_VIEW" | "FALLBACK_ENGINE";
 }
 
-const ROLE_TABS: ReadonlyArray<{ id: PlayerRole | "ALL"; label: string }> = [
-  { id: "ALL", label: "All Roles" },
+type RoleFilterValue = PlayerRole | "ALL_ROLES";
+
+type DifferentialFocusMode =
+  | "ALL_PLAYERS"
+  | "QUALIFYING_PUNTS"
+  | "UNCAPPED_ONLY"
+  | "UNDER_15_PCT_OWNED"
+  | "LOW_CREDIT_SAVERS";
+
+const ROLE_TABS: ReadonlyArray<{ id: RoleFilterValue; label: string }> = [
+  { id: "ALL_ROLES", label: "All Roles" },
   { id: "WK", label: "WK" },
   { id: "BAT", label: "BAT" },
   { id: "ALL", label: "ALL" },
@@ -48,6 +64,17 @@ const BUCKET_TABS: ReadonlyArray<{
   { id: "Form", label: "Form Surge" },
   { id: "Historic", label: "Historic Class" },
   { id: "Punt", label: "Punt / Uncapped" },
+];
+
+const DIFFERENTIAL_TABS: ReadonlyArray<{
+  id: DifferentialFocusMode;
+  label: string;
+}> = [
+  { id: "ALL_PLAYERS", label: "Full Squad" },
+  { id: "QUALIFYING_PUNTS", label: "All Solver Punts" },
+  { id: "UNCAPPED_ONLY", label: "Uncapped Debutants" },
+  { id: "UNDER_15_PCT_OWNED", label: "<15% Ownership Gems" },
+  { id: "LOW_CREDIT_SAVERS", label: "Low-Credit Savers (<=7.5 Cr)" },
 ];
 
 const SORT_OPTIONS: ReadonlyArray<{
@@ -113,6 +140,21 @@ function getBucketBadgeStyle(bucket: RiskBucket): string {
   }
 }
 
+function getPuntBadgeVariantStyle(
+  variant: "crimson" | "gold" | "emerald" | "slate"
+): string {
+  switch (variant) {
+    case "crimson":
+      return "bg-accent-crimson/20 border-accent-crimson/50 text-[#ffb4b4]";
+    case "gold":
+      return "bg-accent-gold/20 border-accent-gold/50 text-accent-gold";
+    case "emerald":
+      return "bg-[#5b8c75]/20 border-[#8ec2a8]/50 text-[#8ec2a8]";
+    default:
+      return "bg-ivory/[0.06] border-ivory/15 text-ivory-muted";
+  }
+}
+
 export function PlayerFormExplorer({
   initialPlayers,
   franchiseRollups,
@@ -121,12 +163,13 @@ export function PlayerFormExplorer({
   const [selectedFranchise, setSelectedFranchise] = useState<
     FranchiseCode | "ALL"
   >("ALL");
-  const [selectedRole, setSelectedRole] = useState<PlayerRole | "ALL">(
-    "ALL"
-  );
+  const [selectedRole, setSelectedRole] =
+    useState<RoleFilterValue>("ALL_ROLES");
   const [selectedBucket, setSelectedBucket] = useState<
     RiskBucket | "ALL"
   >("ALL");
+  const [differentialMode, setDifferentialMode] =
+    useState<DifferentialFocusMode>("ALL_PLAYERS");
   const [sortBy, setSortBy] = useState<AnalyticsSortField>("form_4m_avg");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [visibleCount, setVisibleCount] = useState<number>(18);
@@ -137,6 +180,11 @@ export function PlayerFormExplorer({
   const [drawerPlayer, setDrawerPlayer] =
     useState<PlayerAnalyticsAggregatedRow | null>(null);
 
+  const differentialSummary = useMemo(
+    () => summarizeSquadDifferentials(initialPlayers),
+    [initialPlayers]
+  );
+
   const filteredAndSortedPlayers = useMemo(() => {
     let list = [...initialPlayers];
 
@@ -144,7 +192,7 @@ export function PlayerFormExplorer({
       list = list.filter((p) => p.franchise_code === selectedFranchise);
     }
 
-    if (selectedRole !== "ALL") {
+    if (selectedRole !== "ALL_ROLES") {
       list = list.filter((p) => p.role === selectedRole);
     }
 
@@ -152,6 +200,25 @@ export function PlayerFormExplorer({
       list = list.filter(
         (p) => p.recommended_risk_bucket === selectedBucket
       );
+    }
+
+    if (differentialMode !== "ALL_PLAYERS") {
+      list = list.filter((p) => {
+        const puntInfo = classifyPlayerPuntProfile(p);
+        if (differentialMode === "QUALIFYING_PUNTS") {
+          return puntInfo.isQualifyingPunt;
+        }
+        if (differentialMode === "UNCAPPED_ONLY") {
+          return puntInfo.isUncappedDebutant;
+        }
+        if (differentialMode === "UNDER_15_PCT_OWNED") {
+          return puntInfo.isLowOwnershipGem;
+        }
+        if (differentialMode === "LOW_CREDIT_SAVERS") {
+          return puntInfo.isLowCreditEnabler;
+        }
+        return true;
+      });
     }
 
     if (searchQuery.trim() !== "") {
@@ -182,6 +249,7 @@ export function PlayerFormExplorer({
     selectedFranchise,
     selectedRole,
     selectedBucket,
+    differentialMode,
     sortBy,
     searchQuery,
   ]);
@@ -316,6 +384,103 @@ export function PlayerFormExplorer({
         </div>
       </section>
 
+      <section className="rounded-sm glass-card border border-ivory/15 p-6 sm:p-8 shadow-glass-panel space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-ivory/10 pb-5">
+          <div className="space-y-1">
+            <p className="eyebrow-label text-accent-gold flex items-center gap-2">
+              <Crosshair className="h-3.5 w-3.5" />
+              30-TEAM SOLVER DIFFERENTIAL ENGINE &bull; GRAND LEAGUE TICKETS
+              #26–#30
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl text-ivory font-normal">
+              Debutant &amp; Low-Ownership{" "}
+              <span className="italic text-accent-gold">
+                Differential Radar.
+              </span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 font-mono text-xs tabular-score">
+            <div className="rounded-sm bg-black/50 border border-accent-gold/30 px-3.5 py-2 text-center">
+              <span className="block text-[9px] text-ivory-dim uppercase">
+                UNCAPPED DEBUTANTS
+              </span>
+              <span className="text-base font-bold text-accent-gold">
+                {differentialSummary.totalUncappedDebutants}
+              </span>
+            </div>
+
+            <div className="rounded-sm bg-black/50 border border-accent-crimson/40 px-3.5 py-2 text-center">
+              <span className="block text-[9px] text-ivory-dim uppercase">
+                &lt;15% OWNED GEMS
+              </span>
+              <span className="text-base font-bold text-[#ffb4b4]">
+                {differentialSummary.totalUnder15PctOwned}
+              </span>
+            </div>
+
+            <div className="rounded-sm bg-black/50 border border-[#8ec2a8]/35 px-3.5 py-2 text-center">
+              <span className="block text-[9px] text-ivory-dim uppercase">
+                &lt;=7.5 Cr SAVERS
+              </span>
+              <span className="text-base font-bold text-[#8ec2a8]">
+                {differentialSummary.totalLowCreditEnablers}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {differentialSummary.topDifferentialPicks.map(
+            ({ player, classification }) => (
+              <div
+                key={player.external_api_id}
+                onClick={() => setDrawerPlayer(player)}
+                className="rounded-sm bg-black/50 border border-ivory/12 hover:border-accent-gold/50 p-4 transition-all cursor-pointer flex items-center justify-between gap-3"
+              >
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="font-mono text-[10px] font-bold"
+                      style={{ color: player.franchise_primary_hex }}
+                    >
+                      {player.franchise_code}
+                    </span>
+                    <span
+                      className={cn(
+                        "rounded-sm px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase border",
+                        getPuntBadgeVariantStyle(
+                          classification.badgeColorVariant
+                        )
+                      )}
+                    >
+                      {classification.badgeLabel}
+                    </span>
+                  </div>
+                  <p className="font-display text-xl text-ivory truncate">
+                    {player.full_name}
+                  </p>
+                  <p className="font-mono text-[10px] text-ivory-dim tabular-score">
+                    {player.credits.toFixed(1)} Cr &bull; Sel{" "}
+                    {player.selection_pct.toFixed(1)}% &bull; ROI{" "}
+                    {player.points_per_credit.toFixed(1)}/Cr
+                  </p>
+                </div>
+
+                <div className="text-right font-mono tabular-score shrink-0">
+                  <span className="block text-[9px] text-ivory-dim uppercase">
+                    LEVERAGE
+                  </span>
+                  <span className="text-lg font-bold text-accent-gold">
+                    {classification.differentialLeverageScore.toFixed(1)}
+                  </span>
+                </div>
+              </div>
+            )
+          )}
+        </div>
+      </section>
+
       {activeCareerPlayer && (
         <div id="career-history-anchor" className="scroll-mt-28">
           <CareerTable
@@ -346,7 +511,7 @@ export function PlayerFormExplorer({
               const isSelected = selectedRole === tab.id;
               return (
                 <button
-                  key={tab.id}
+                  key={`role-filter-${tab.id}`}
                   type="button"
                   onClick={() => setSelectedRole(tab.id)}
                   className={cn(
@@ -394,28 +559,55 @@ export function PlayerFormExplorer({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 border-t border-ivory/10 pt-4">
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ivory-dim mr-1">
-            AI Risk Bucket:
-          </span>
-          {BUCKET_TABS.map((tab) => {
-            const isSelected = selectedBucket === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setSelectedBucket(tab.id)}
-                className={cn(
-                  "rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-wider border transition-all cursor-pointer",
-                  isSelected
-                    ? "bg-accent-gold text-stadium-navy border-accent-gold font-bold"
-                    : "bg-black/45 border-ivory/12 text-ivory-muted hover:text-ivory"
-                )}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-ivory/10 pt-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ivory-dim mr-1">
+              AI Risk Bucket:
+            </span>
+            {BUCKET_TABS.map((tab) => {
+              const isSelected = selectedBucket === tab.id;
+              return (
+                <button
+                  key={`bucket-filter-${tab.id}`}
+                  type="button"
+                  onClick={() => setSelectedBucket(tab.id)}
+                  className={cn(
+                    "rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-wider border transition-all cursor-pointer",
+                    isSelected
+                      ? "bg-accent-gold text-stadium-navy border-accent-gold font-bold"
+                      : "bg-black/45 border-ivory/12 text-ivory-muted hover:text-ivory"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-accent-gold flex items-center gap-1 mr-1">
+              <Zap className="h-3 w-3" />
+              Punt Lens:
+            </span>
+            {DIFFERENTIAL_TABS.map((tab) => {
+              const isSelected = differentialMode === tab.id;
+              return (
+                <button
+                  key={`diff-filter-${tab.id}`}
+                  type="button"
+                  onClick={() => setDifferentialMode(tab.id)}
+                  className={cn(
+                    "rounded-sm px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider border transition-all cursor-pointer",
+                    isSelected
+                      ? "bg-accent-crimson/30 border-accent-crimson text-[#ffb4b4] font-bold"
+                      : "bg-black/45 border-ivory/12 text-ivory-muted hover:text-ivory"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -425,6 +617,7 @@ export function PlayerFormExplorer({
             const isInspectingCareer =
               activeCareerPlayer?.external_api_id ===
               player.external_api_id;
+            const puntProfile = classifyPlayerPuntProfile(player);
 
             return (
               <motion.article
@@ -484,30 +677,50 @@ export function PlayerFormExplorer({
                         {player.full_name}
                       </button>
 
-                      <div className="flex items-center gap-2 font-mono text-[10px] text-ivory-dim tabular-score">
+                      <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px] text-ivory-dim tabular-score">
                         <span>Sel {player.selection_pct.toFixed(1)}%</span>
                         {player.is_overseas && (
                           <span className="rounded-sm bg-ivory/6 px-1.5 py-0.2 text-ivory-muted">
                             OS
                           </span>
                         )}
-                        {player.is_uncapped_debutant && (
-                          <span className="rounded-sm bg-accent-gold/15 px-1.5 py-0.2 text-accent-gold">
-                            UNCAPPED
+                        {puntProfile.badgeLabel && (
+                          <span
+                            className={cn(
+                              "rounded-sm px-1.5 py-0.5 text-[9px] font-bold uppercase border",
+                              getPuntBadgeVariantStyle(
+                                puntProfile.badgeColorVariant
+                              )
+                            )}
+                          >
+                            {puntProfile.badgeLabel}
+                          </span>
+                        )}
+                        {puntProfile.secondaryBadgeLabel && (
+                          <span className="rounded-sm bg-ivory/6 border border-ivory/15 px-1.5 py-0.5 text-[9px] text-accent-gold">
+                            {puntProfile.secondaryBadgeLabel}
                           </span>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  <span
-                    className={cn(
-                      "rounded-full px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-widest border shrink-0",
-                      getBucketBadgeStyle(player.recommended_risk_bucket)
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span
+                      className={cn(
+                        "rounded-full px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-widest border",
+                        getBucketBadgeStyle(player.recommended_risk_bucket)
+                      )}
+                    >
+                      {player.recommended_risk_bucket}
+                    </span>
+                    {puntProfile.isQualifyingPunt && (
+                      <span className="font-mono text-[9px] text-accent-gold tabular-score flex items-center gap-0.5">
+                        <Flame className="h-2.5 w-2.5" />
+                        Lev {puntProfile.differentialLeverageScore.toFixed(1)}
+                      </span>
                     )}
-                  >
-                    {player.recommended_risk_bucket}
-                  </span>
+                  </div>
                 </div>
 
                 <div className="rounded-sm bg-black/50 border border-ivory/10 p-3.5">

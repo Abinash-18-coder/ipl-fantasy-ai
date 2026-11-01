@@ -14,7 +14,7 @@ import type {
 
 export interface PlayerAnalyticsFilterOptions {
   franchise?: FranchiseCode | "ALL";
-  role?: PlayerRole | "ALL";
+  role?: PlayerRole | "ALL_ROLES";
   riskBucket?: RiskBucket | "ALL";
   search?: string;
   sortBy?: AnalyticsSortField;
@@ -273,7 +273,7 @@ const FALLBACK_STAR_SEED: ReadonlyArray<{
     credits: 7.5,
     is_overseas: false,
     is_uncapped_debutant: true,
-    selection_pct: 22.4,
+    selection_pct: 14.2,
     recent_form_points: [48, 64, 71, 76],
   },
   {
@@ -285,8 +285,32 @@ const FALLBACK_STAR_SEED: ReadonlyArray<{
     credits: 6.5,
     is_overseas: false,
     is_uncapped_debutant: true,
-    selection_pct: 16.5,
+    selection_pct: 11.8,
     recent_form_points: [42, 58, 67, 74],
+  },
+  {
+    external_api_id: "pbks-priyansh-arya",
+    full_name: "Priyansh Arya",
+    short_name: "P. Arya",
+    franchise_code: "PBKS",
+    role: "BAT",
+    credits: 6.5,
+    is_overseas: false,
+    is_uncapped_debutant: true,
+    selection_pct: 11.2,
+    recent_form_points: [44, 61, 55, 72],
+  },
+  {
+    external_api_id: "csk-anshul-kamboj",
+    full_name: "Anshul Kamboj",
+    short_name: "A. Kamboj",
+    franchise_code: "CSK",
+    role: "BOWL",
+    credits: 7.0,
+    is_overseas: false,
+    is_uncapped_debutant: true,
+    selection_pct: 12.8,
+    recent_form_points: [46, 53, 62, 68],
   },
 ];
 
@@ -448,7 +472,7 @@ function applyFiltersAndSorting(
     );
   }
 
-  if (options.role && options.role !== "ALL") {
+  if (options.role && options.role !== "ALL_ROLES") {
     filtered = filtered.filter((p) => p.role === options.role);
   }
 
