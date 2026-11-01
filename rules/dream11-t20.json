@@ -1,0 +1,70 @@
+{
+  "version": "2026.1-ipl-t20",
+  "last_verified": "2026-11-01",
+  "reverify_before": "IPL-2027",
+  "multipliers": {
+    "captain": 2.0,
+    "vice_captain": 1.5,
+    "normal": 1.0
+  },
+  "appearance": {
+    "playing_xi": 4,
+    "impact_substitute_activated": 4
+  },
+  "batting": {
+    "run": 1,
+    "boundary_four_bonus": 4,
+    "boundary_six_bonus": 6,
+    "duck_penalty": -2,
+    "duck_exempt_roles": ["BOWL"],
+    "milestones": {
+      "runs_25_bonus": 4,
+      "runs_50_bonus": 8,
+      "runs_75_bonus": 12,
+      "runs_100_bonus": 16
+    }
+  },
+  "bowling": {
+    "wicket_excluding_run_out": 30,
+    "lbw_or_bowled_bonus": 8,
+    "maiden_over": 12,
+    "crex_dot_ball_bonus": 1,
+    "hauls": {
+      "wickets_3_bonus": 4,
+      "wickets_4_bonus": 8,
+      "wickets_5_bonus": 12
+    }
+  },
+  "fielding": {
+    "catch": 8,
+    "three_catches_haul_bonus": 4,
+    "stumping": 12,
+    "run_out_direct_hit": 12,
+    "run_out_indirect": 6
+  },
+  "economy_rate": {
+    "min_balls_bowled": 12,
+    "bands": [
+      { "max_eco": 4.999, "points": 6, "label": "< 5.00 RPO" },
+      { "min_eco": 5.0, "max_eco": 5.999, "points": 4, "label": "5.00 - 5.99 RPO" },
+      { "min_eco": 6.0, "max_eco": 7.0, "points": 2, "label": "6.00 - 7.00 RPO" },
+      { "min_eco": 7.001, "max_eco": 9.999, "points": 0, "label": "7.01 - 9.99 RPO (Neutral)" },
+      { "min_eco": 10.0, "max_eco": 11.0, "points": -2, "label": "10.00 - 11.00 RPO" },
+      { "min_eco": 11.001, "max_eco": 12.0, "points": -4, "label": "11.01 - 12.00 RPO" },
+      { "min_eco": 12.001, "points": -6, "label": "> 12.00 RPO" }
+    ]
+  },
+  "strike_rate": {
+    "min_balls_faced": 10,
+    "exempt_roles": ["BOWL"],
+    "bands": [
+      { "min_sr": 170.001, "points": 6, "label": "> 170.00 SR" },
+      { "min_sr": 150.001, "max_sr": 170.0, "points": 4, "label": "150.01 - 170.00 SR" },
+      { "min_sr": 130.0, "max_sr": 150.0, "points": 2, "label": "130.00 - 150.00 SR" },
+      { "min_sr": 70.001, "max_sr": 129.999, "points": 0, "label": "70.01 - 129.99 SR (Neutral)" },
+      { "min_sr": 60.0, "max_sr": 70.0, "points": -2, "label": "60.00 - 70.00 SR" },
+      { "min_sr": 50.0, "max_sr": 59.999, "points": -4, "label": "50.00 - 59.99 SR" },
+      { "max_sr": 49.999, "points": -6, "label": "< 50.00 SR" }
+    ]
+  }
+}
