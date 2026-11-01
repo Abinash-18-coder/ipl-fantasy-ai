@@ -14,6 +14,7 @@ import {
   Zap,
 } from "lucide-react";
 import { FormSparkline } from "@/components/analytics/FormSparkline";
+import { DualScoringVerifierCard } from "@/components/analytics/DualScoringVerifierCard";
 import { CareerTable } from "@/components/player/CareerTable";
 import { PlayerDetailDrawer } from "@/components/player/PlayerDetailDrawer";
 import { RollingDigitTicker } from "@/components/scores/RollingDigitTicker";
@@ -383,6 +384,8 @@ export function PlayerFormExplorer({
           })}
         </div>
       </section>
+
+      <DualScoringVerifierCard />
 
       <section className="rounded-sm glass-card border border-ivory/15 p-6 sm:p-8 shadow-glass-panel space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-ivory/10 pb-5">

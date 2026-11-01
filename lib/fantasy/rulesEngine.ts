@@ -85,7 +85,7 @@ export interface PlayerMatchPerformanceInput {
   role: PlayerRole;
   in_starting_xi: boolean;
   activated_as_impact_sub?: boolean;
-  multiplier_role?: "CAPTAIN" | "VICE_CAPTAIN" | "NONE";
+  multiplier_role?: MultiplierRole;
   runs_scored?: number;
   balls_faced?: number;
   fours?: number;
